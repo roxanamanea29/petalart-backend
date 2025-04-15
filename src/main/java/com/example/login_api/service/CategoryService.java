@@ -2,10 +2,15 @@ package com.example.login_api.service;
 
 import com.example.login_api.dto.CategoryRequest;
 import com.example.login_api.dto.CategoryResponse;
+import com.example.login_api.dto.CategoryWithProducts;
+import com.example.login_api.dto.ProductSummary;
 import com.example.login_api.entity.Category;
+import com.example.login_api.entity.Product;
 import com.example.login_api.repository.ICategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -64,6 +69,21 @@ public class CategoryService {
         }
         categoryRepository.deleteById(id);//si existe la elimina de la base de datos
     }
+
+    // Método para devolver la categoría y una lista con sus productos (solo títulos para el menu)
+    public List<CategoryWithProducts> categoryWithProducts() {
+        List<Category> categories = categoryRepository.findAll();
+        return categories.stream()
+                .map(category -> new CategoryWithProducts(
+                        category.getCategoryId(),
+                        category.getCategoryName(),
+                        category.getProducts().stream()
+                                .map(product -> new ProductSummary(product.getProductId(), product.getProductName())) //solo devuelve el id y el nombre del producto
+                                .collect(Collectors.toList())
+                ))
+                .collect(Collectors.toList());
+    }
+
 
     // Convertir entidad a DTO
     private CategoryResponse mapToCategoryResponse(Category category) {//recibe una categoría y la convierte en un DTO

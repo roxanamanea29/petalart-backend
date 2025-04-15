@@ -3,6 +3,7 @@ package com.example.login_api.controller;
 import com.example.login_api.dto.CategoryRequest;
 import com.example.login_api.dto.CategoryResponse;
 
+import com.example.login_api.dto.CategoryWithProducts;
 import com.example.login_api.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,10 +35,16 @@ public class CategoryController {
         return categoryService.findAll();
     }
 
-    //metodo utilizado para buscar una categoría por id
+    // ✅ Primero el endpoint literal
+    @GetMapping("/with-products")
+    public List<CategoryWithProducts> getCategoriesWithProducts() {
+        return categoryService.categoryWithProducts();
+    }
+
+    // ✅ Después el que usa parámetro de ruta
     @GetMapping("/{id}")
     public CategoryResponse getCategoryById(@PathVariable Long id) {
-        return categoryService.findResponseById(id); // busca la categoría por id y la devuelve en formato DTO
+        return categoryService.findResponseById(id);
     }
     //metodo utilizado para actualizar una categoría
     @PreAuthorize("hasRole('ADMIN')")
@@ -45,6 +52,8 @@ public class CategoryController {
     public CategoryResponse updateCategory(@PathVariable Long id, @RequestBody CategoryRequest request) {
         return categoryService.update(id, request); // actualiza la categoría y la devuelve como DTO
     }
+
+
 
     //metodo para eliminar una categoría
     @PreAuthorize("hasRole('ADMIN')")
