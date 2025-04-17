@@ -50,6 +50,7 @@ public class WebSecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/with-products/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/cart/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/auth/dashboard").hasRole("USER")
                         .requestMatchers("/auth/login", "/auth/register").permitAll()

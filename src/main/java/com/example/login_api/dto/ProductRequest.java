@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 public class ProductRequest {
@@ -12,7 +14,7 @@ public class ProductRequest {
     @JsonProperty("name")
     private String productName;
     private String description;
-    private double price;
+    private BigDecimal price;
     private Long categoryId;
     @JsonProperty("imageUrl")
     private String productImage;

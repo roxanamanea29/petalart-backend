@@ -15,8 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 @Entity
-@Table(name = "users",
-        uniqueConstraints = {@UniqueConstraint(columnNames = "email")} )
+@Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = "email")} )
 public class UserEntity {
 
     @Id
@@ -43,9 +42,9 @@ public class UserEntity {
     private String role;
 
     //relation con Cart
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Cart> carts;
-
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
