@@ -36,6 +36,7 @@ public class AuthService {
         return LoginResponse.builder()
                 .accessToken(token)
                 .roles(roles)
+                .userId(principal.getUserId())
                 .build();
     }
 }

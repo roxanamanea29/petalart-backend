@@ -1,5 +1,6 @@
 package com.example.login_api.controller;
 
+import com.example.login_api.dto.UpdateUserRequest;
 import com.example.login_api.entity.UserEntity;
 import com.example.login_api.exception.EmailAlreadyExistsException;
 import com.example.login_api.model.RegisterRequest;
@@ -9,6 +10,8 @@ import com.example.login_api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -23,6 +26,8 @@ public class UserController {
 
     private final UserService userService;
     private final IUserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
@@ -39,12 +44,43 @@ public class UserController {
         }
     }
 
+
+    @PutMapping("/user/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')") // <- nombre correcto del rol
+    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequest dto) {
+        Optional<UserEntity> optionalUser = userRepository.findById(id);
+
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+        }
+
+        UserEntity existingUser = optionalUser.get();
+        existingUser.setFirstName(dto.getFirstName());
+        existingUser.setLastName(dto.getLastName());
+        existingUser.setEmail(dto.getEmail());
+        existingUser.setPhone(dto.getPhone());
+        existingUser.setRole(dto.getRole());
+
+        // Solo actualiza la contraseña si viene una nueva
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            existingUser.setPassword(passwordEncoder.encode(dto.getPassword())); // <- cerrado correctamente
+        }
+
+        userRepository.save(existingUser);
+        return ResponseEntity.ok("Usuario actualizado con éxito");
+    }
+
     @GetMapping("/dashboard")
     public ResponseEntity<String> getDashboard() {
         return ResponseEntity.ok("Bienvenido al Dashboard de Usuario");
     }
 
+    @GetMapping("/users")
+    public ResponseEntity<?> getUsers() {
+        return ResponseEntity.ok(userService.getUsers());
+    }
     @GetMapping("/profile")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getProfile(Principal principal) {
         if (principal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no autenticado");
