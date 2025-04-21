@@ -151,9 +151,18 @@ public CartResponse getCartResponseByUserId(Long userId) {
     private CartResponse convertToCartResponse(Cart cart) {
         CartResponse dto = modelMapper.map(cart, CartResponse.class);
 
-        List<CartItemResponse> itemDtos = cart.getItems().stream().map(item -> modelMapper.map(item, CartItemResponse.class)).toList();
-        dto.setItems(itemDtos);
+        List<CartItemResponse> itemDtos = cart.getItems().stream().map(item -> {
+            CartItemResponse itemDto = new CartItemResponse();
+            itemDto.setProductId(item.getProduct().getProductId());
+            itemDto.setProductName(item.getProduct().getProductName());
+            itemDto.setDescription(item.getProduct().getDescription()); // ✅ aquí
+            itemDto.setQuantity(item.getQuantity());
+            itemDto.setPrice(item.getProduct().getPrice());
+            itemDto.setImageUrl(item.getProduct().getProductImage());
+            return itemDto;
+        }).toList();
 
+        dto.setItems(itemDtos);
         return dto;
     }
 }

@@ -11,6 +11,7 @@ import java.util.List;
 public class CartResponse {
     private Long cartId;
     private Long userId;
+    private String imageUrl;
     private List<CartItemResponse> items;
     private double totalPrice;
 }
