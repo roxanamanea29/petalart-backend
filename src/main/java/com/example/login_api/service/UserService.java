@@ -1,7 +1,7 @@
 package com.example.login_api.service;
 
 import com.example.login_api.entity.UserEntity;
-import com.example.login_api.model.RegisterRequest;
+import com.example.login_api.dto.RegisterRequest;
 import com.example.login_api.repository.IUserRepository;
 import com.example.login_api.exception.EmailAlreadyExistsException; // Crea esta excepción personalizada
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +68,7 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         // Solo actualiza estos campos
+        existingUser.setId(user.getId());
         existingUser.setFirstName(user.getFirstName());
         existingUser.setLastName(user.getLastName());
         existingUser.setEmail(user.getEmail());

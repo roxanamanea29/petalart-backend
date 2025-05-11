@@ -2,10 +2,7 @@ package com.example.login_api.entity;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -14,8 +11,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "carts")
-@Setter
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Cart {

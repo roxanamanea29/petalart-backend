@@ -1,7 +1,7 @@
 package com.example.login_api.service;
 
 
-import com.example.login_api.model.LoginResponse;
+import com.example.login_api.dto.LoginResponse;
 import com.example.login_api.security.JwtIssuer;
 import com.example.login_api.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;

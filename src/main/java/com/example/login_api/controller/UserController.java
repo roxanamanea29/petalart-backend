@@ -1,10 +1,11 @@
 package com.example.login_api.controller;
 
 import com.example.login_api.dto.UpdateUserRequest;
+import com.example.login_api.dto.UserResponse;
 import com.example.login_api.entity.UserEntity;
 import com.example.login_api.exception.EmailAlreadyExistsException;
-import com.example.login_api.model.RegisterRequest;
-import com.example.login_api.model.RegisterResponse;
+import com.example.login_api.dto.RegisterRequest;
+import com.example.login_api.dto.RegisterResponse;
 import com.example.login_api.repository.IUserRepository;
 import com.example.login_api.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -31,20 +33,28 @@ public class UserController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<UserResponse> register(@RequestBody RegisterRequest registerRequest) {
         try {
             var user = userService.registerUser(registerRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(
-                    new RegisterResponse(user.getId(), "Usuario registrado con éxito", user.getEmail())
+                    new UserResponse(
+                            user.getId(),
+                            user.getFirstName(),
+                            user.getLastName(),
+                            user.getEmail(),
+                            user.getPhone(),
+                            user.getRole(),
+                            user.getCreatedAt(),
+                            user.getUpdatedAt()
+                    )
             );
         } catch (EmailAlreadyExistsException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    new RegisterResponse(null, e.getMessage(), null)
-            );
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
 
+    @Transactional
     @PutMapping("/user/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')") // <- nombre correcto del rol
     public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequest dto) {

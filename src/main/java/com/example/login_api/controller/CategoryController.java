@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoryController {
 
-    //esta clase es la que se encarga de manejar las peticiones HTTP de las categorías
+
     private final CategoryService categoryService;
 
     //metodo utiñizado para crear una categoría
@@ -35,13 +35,13 @@ public class CategoryController {
         return categoryService.findAll();
     }
 
-    // ✅ Primero el endpoint literal
+    //  Primero el endpoint literal
     @GetMapping("/with-products")
     public List<CategoryWithProducts> getCategoriesWithProducts() {
         return categoryService.categoryWithProducts();
     }
 
-    // ✅ Después el que usa parámetro de ruta
+    //  Después el que usa parámetro de ruta
     @GetMapping("/{id}")
     public CategoryResponse getCategoryById(@PathVariable Long id) {
         return categoryService.findResponseById(id);

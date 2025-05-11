@@ -1,6 +1,9 @@
 package com.example.login_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,8 +15,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "products")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 public class Product {
 
@@ -40,5 +42,6 @@ public class Product {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
+    @JsonIgnoreProperties("products")
     private Category category;
 }

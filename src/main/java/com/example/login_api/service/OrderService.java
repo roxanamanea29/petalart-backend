@@ -1,0 +1,69 @@
+package com.example.login_api.service;
+
+
+import com.example.login_api.entity.*;
+import com.example.login_api.repository.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class OrderService {
+
+    private final CartService cartService;
+    private final IOrderRepository orderRepository;
+    private final ICartRepository cartRepository;
+    private final IUserRepository userRepository;
+    private final ICartItemRepository cartItemRepository;
+    private final IOrderItemRepository orderItemRepository;
+
+    public Order createOrder(Long userId) {
+        //primero se busca el usuario o lanza una excepcion si no existe
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado :("));
+        // busca el carrito del usuario
+        Cart cart = cartRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
+
+        // se verifica que el carrito no esta vacío
+        if(cart.getItems().isEmpty()) {
+            throw new RuntimeException("El carrito está vacío");
+        }
+
+        // se crea el pedido
+        Order order = new Order();//se crea la instacnia de la clase Order
+        order.setUser(user);//se le asigna el usuario
+        order.setDate(LocalDateTime.now());//se le asigna la fecha de creación
+
+        //convertir el carrito a una lista de OrderItem
+        List<OrderItem> orderItems = cart.getItems().stream().map(cartItem -> {//el stream se usa para recorrer la lista de items del carrito y trans
+            OrderItem orderItem = new OrderItem();
+            orderItem.setProduct(cartItem.getProduct());
+            orderItem.setQuantity(cartItem.getQuantity());
+            orderItem.setPrice(cartItem.getProduct().getPrice());
+            orderItem.setOrder(order);
+            return orderItem;
+        }).collect(Collectors.toList());//recolecta los items en una lista de tipo List<OrderItem>
+
+        order.setItems(orderItems);
+        BigDecimal total = orderItems.stream()
+                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        order.setTotal(total);//se le asigna el total al pedido
+
+        orderRepository.save(order);//guardar el pedido en la base de datos
+        orderItemRepository.saveAll(orderItems);//guardar los items del pedido en la base de datos
+
+        cart.getItems().clear();//limpiar el carrito
+        cartRepository.save(cart);//guardar el carrito vacío en la base de datos
+
+        // guardar el pedido
+        return orderRepository.save(order);
+    }
+}

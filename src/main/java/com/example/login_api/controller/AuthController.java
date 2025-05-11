@@ -1,19 +1,21 @@
 package com.example.login_api.controller;
 
 
-import com.example.login_api.model.LoginRequest;
-import com.example.login_api.model.LoginResponse;
+import com.example.login_api.exception.EmailAlreadyExistsException;
+import com.example.login_api.dto.LoginRequest;
+import com.example.login_api.dto.LoginResponse;
+import com.example.login_api.dto.RegisterResponse;
 import com.example.login_api.security.JwtIssuer;
 import com.example.login_api.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 @RestController
 @RequiredArgsConstructor
 
@@ -25,8 +27,13 @@ AuthController {
     private final AuthenticationManager authenticationManager;//maneja la autenticacion utilizando el usuario y contraseña
 
     @PostMapping("/auth/login")
-    public LoginResponse login(@RequestBody @Validated LoginRequest request) {
-        return authService.attemptLogin(request.getEmail(), request.getPassword());
+    public ResponseEntity<?> login(@RequestBody @Validated LoginRequest request) {
+        try {
+            LoginResponse response = authService.attemptLogin(request.getEmail(), request.getPassword());
+            return ResponseEntity.ok(response);
+        } catch (EmailAlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new RegisterResponse(null, e.getMessage(), null));
+        }
     }
-
 }

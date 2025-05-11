@@ -3,26 +3,32 @@ package com.example.login_api.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.cache.spi.support.AbstractReadWriteAccess;
+
+import java.math.BigDecimal;
 
 @Entity
-@Table(name = "cart_items")
+@Table(name = "order_items")
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class CartItem {
+@NoArgsConstructor
+public class OrderItem {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
-    private Long cartItemId;
-
+    private Long orderItemId;
     @ManyToOne
-    @JoinColumn(name = "cart_id", nullable = false)
+    @JoinColumn(name="order_id", nullable = false)
     @JsonIgnore
-    private Cart cart;
+    private Order order;
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     private int quantity;
+
+    private BigDecimal price;
 }

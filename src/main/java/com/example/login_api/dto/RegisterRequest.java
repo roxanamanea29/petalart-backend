@@ -1,4 +1,4 @@
-package com.example.login_api.model;
+package com.example.login_api.dto;
 
 import lombok.Getter;
 import lombok.Setter;
