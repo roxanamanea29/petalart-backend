@@ -4,6 +4,7 @@ package com.example.login_api.service;
 import com.example.login_api.dto.OrderItemResponse;
 import com.example.login_api.dto.OrderResponse;
 import com.example.login_api.entity.*;
+import com.example.login_api.enums.OrderStatus;
 import com.example.login_api.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,7 @@ public class OrderService {
         Order order = new Order();//se crea la instacnia de la clase Order
         order.setUser(user);//se le asigna el usuario
         order.setDate(LocalDateTime.now());//se le asigna la fecha de creación
+        order.setStatus(OrderStatus.PENDING_PAYMENT);//se le asigna el estado pendiente
 
         //convertir el carrito a una lista de OrderItem
         List<OrderItem> orderItems = cart.getItems().stream().map(cartItem -> {//el stream se usa para recorrer la lista de items del carrito y trans
