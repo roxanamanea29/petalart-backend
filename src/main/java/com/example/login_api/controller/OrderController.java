@@ -1,6 +1,7 @@
 package com.example.login_api.controller;
 
 
+import com.example.login_api.dto.OrderResponse;
 import com.example.login_api.entity.Order;
 import com.example.login_api.service.OrderService;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +24,8 @@ public class OrderController {
     }
      // create order
     @PostMapping("/create/{userId}")
-     public ResponseEntity<Order> createOrder(@PathVariable Long userId) {
-         Order order = orderService.createOrder(userId);
+     public ResponseEntity<OrderResponse> createOrder(@PathVariable Long userId) {
+         OrderResponse order = orderService.createOrder(userId);
          return ResponseEntity.ok(order);
      }
 }

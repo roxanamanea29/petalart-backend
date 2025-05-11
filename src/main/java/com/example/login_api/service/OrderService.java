@@ -1,6 +1,8 @@
 package com.example.login_api.service;
 
 
+import com.example.login_api.dto.OrderItemResponse;
+import com.example.login_api.dto.OrderResponse;
 import com.example.login_api.entity.*;
 import com.example.login_api.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +25,7 @@ public class OrderService {
     private final ICartItemRepository cartItemRepository;
     private final IOrderItemRepository orderItemRepository;
 
-    public Order createOrder(Long userId) {
+    public OrderResponse createOrder(Long userId) {
         //primero se busca el usuario o lanza una excepcion si no existe
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado :("));
@@ -32,7 +34,7 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
 
         // se verifica que el carrito no esta vacío
-        if(cart.getItems().isEmpty()) {
+        if (cart.getItems().isEmpty()) {
             throw new RuntimeException("El carrito está vacío");
         }
 
@@ -64,6 +66,30 @@ public class OrderService {
         cartRepository.save(cart);//guardar el carrito vacío en la base de datos
 
         // guardar el pedido
-        return orderRepository.save(order);
+        return mapToOrderResponseDTO(order);
+    }
+
+    private OrderResponse mapToOrderResponseDTO(Order order) {
+        OrderResponse dto = new OrderResponse();
+        dto.setId(order.getId());
+        dto.setDate(order.getDate());
+        dto.setTotal(order.getTotal());
+
+        List<OrderItemResponse> itemDTOs = order.getItems().stream()
+                .map(this::mapToOrderItemResponse)
+                .collect(Collectors.toList());
+        dto.setItems(itemDTOs);
+
+        return dto;
+    }
+
+    private OrderItemResponse mapToOrderItemResponse(OrderItem item) {
+        OrderItemResponse dto = new OrderItemResponse();
+        dto.setOrderItemId(item.getOrderItemId());
+        dto.setProductName(item.getProduct().getProductName());
+        dto.setImageUrl(item.getProduct().getProductImage());
+        dto.setQuantity(item.getQuantity());
+        dto.setPrice(item.getPrice());
+        return dto;
     }
 }
