@@ -85,6 +85,22 @@ public class OrderService {
         return dto;
     }
 
+    public List<OrderResponse> getOrdersByUserId(Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado :("));
+        List<Order> orders = orderRepository.findByUser(user);
+        return orders.stream()
+                .map(this::mapToOrderResponseDTO)
+                .collect(Collectors.toList());
+    }
+    public OrderResponse getOrderById(Long orderId) {
+       Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado :("));
+        return mapToOrderResponseDTO(order);
+    }
+
+
+    //mapea un OrderItem a un OrderItemResponse
     private OrderItemResponse mapToOrderItemResponse(OrderItem item) {
         OrderItemResponse dto = new OrderItemResponse();
         dto.setOrderItemId(item.getOrderItemId());
