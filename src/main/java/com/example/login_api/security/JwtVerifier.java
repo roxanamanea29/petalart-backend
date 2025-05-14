@@ -14,6 +14,11 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class JwtVerifier {
 
+    /**
+     * Verifica la validez de un token JWT.
+     * @param token el token JWT a verificar
+     * @return true si el token es válido, false en caso contrario
+     */
     private final JwtProperties properties;
 
     public boolean verify(String token) {

@@ -11,14 +11,17 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class JwtDecoder {
     private final JwtProperties properties;
-
+    /**
+     * Decodifica el token JWT y devuelve el objeto DecodedJWT.
+     * @param token el token JWT a decodificar
+     * @devuelve el objeto DecodedJWT que contiene la información decodificada del token
+     * @throws JWTDecodeException si el token es inválido o no se puede decodificar
+     */
     public DecodedJWT decode(String token) {
-        // Validar que el token no esté vacío o mal formado
+        // Validar que el token que no esté vacío o mal formado
         if (token == null || token.trim().isEmpty()) {
             throw new JWTDecodeException("Token inválido o vacío");
         }
-        //
-
         try {
             return JWT.require(Algorithm.HMAC256(properties.getSecretKey()))
                     .build()

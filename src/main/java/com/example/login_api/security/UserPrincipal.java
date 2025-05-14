@@ -20,6 +20,10 @@ public class UserPrincipal implements UserDetails {//UserDetails is an interface
     @JsonIgnore
     private final String password;
 
+    private final String firstName;
+
+    private final String lastName;
+
     private  final Collection<? extends GrantedAuthority> authorities;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

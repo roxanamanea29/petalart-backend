@@ -33,10 +33,14 @@ public class AuthService {
         var token = jwtIssuer.issue(principal.getUserId(), principal.getEmail(), roles);
         System.out.println("🛠 Token JWT generado: " + token);
 
+        String fullName = principal.getFirstName() + " " + principal.getLastName();
+        System.out.println("🛠 Nombre completo del usuario: " + fullName);
         return LoginResponse.builder()
                 .accessToken(token)
                 .roles(roles)
                 .userId(principal.getUserId())
+                .email(principal.getEmail())
+                .name(fullName)
                 .build();
     }
 }
