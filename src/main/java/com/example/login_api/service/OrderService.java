@@ -71,6 +71,7 @@ public class OrderService {
         return mapToOrderResponseDTO(order);
     }
 
+    //mapea un Order a un OrderResponse
     private OrderResponse mapToOrderResponseDTO(Order order) {
         OrderResponse dto = new OrderResponse();
         dto.setId(order.getId());
@@ -85,6 +86,7 @@ public class OrderService {
         return dto;
     }
 
+    //método para obtener todos los pedidos de un usuario
     public List<OrderResponse> getOrdersByUserId(Long userId) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado :("));

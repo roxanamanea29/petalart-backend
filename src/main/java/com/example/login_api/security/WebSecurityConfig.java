@@ -56,6 +56,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/auth/dashboard").hasRole("USER")
                         .requestMatchers("/auth/login", "/auth/register").permitAll()
                         .requestMatchers("/auth/profile").authenticated()
+                                .requestMatchers("/payment/**").authenticated()
 /*
                         // 🛡️ Solo admin puede crear/editar/borrar
                         .requestMatchers(HttpMethod.POST, "/categories").hasRole("ADMIN")

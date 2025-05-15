@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 @Data
 public class PaymentRequest {
     private Long userId;
-
     private String orderId;
     private PaymentMethod paymentMethod;
     private BigDecimal totalAmount;

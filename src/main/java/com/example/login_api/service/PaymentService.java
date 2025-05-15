@@ -2,6 +2,7 @@ package com.example.login_api.service;
 
 import com.example.login_api.dto.OrderResponse;
 import com.example.login_api.dto.PaymentRequest;
+import com.example.login_api.dto.PaymentResponse;
 import com.example.login_api.entity.Order;
 import com.example.login_api.entity.Payment;
 import com.example.login_api.entity.UserEntity;
@@ -12,6 +13,10 @@ import com.example.login_api.repository.IPaymentRepository;
 import com.example.login_api.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -42,8 +47,28 @@ public class PaymentService {
         return paymentRepository.save(payment);
     }
 
-    // buscar pago por id
+    // método para buscar pago por id del usuario
+    public List<PaymentResponse> getPaymentByUserId(Long userId) {
+      List <Payment> payment = paymentRepository.findByUserId(userId);
+
+      return payment.stream()
+                .map(pago -> new PaymentResponse(
+                        pago.getId(),
+                        pago.getOrderId(),
+                        pago.getTotalAmount(),
+                        pago.getPaymentMethod(),
+                        pago.getPaymentStatus(),
+                        pago.getTransactionId(),
+                        pago.getCreatedAt(),
+                        pago.getUpdatedAt()
+                ))
+                .toList();
+    }
+
+
     // buscar pagos por usuario
+
+
     // buscar pagos por estado
     // buscar pagos por método de pago
 

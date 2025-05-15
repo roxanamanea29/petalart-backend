@@ -24,7 +24,7 @@ public class Payment {
     private Long id;
 
     @ManyToOne
-    @Column(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
     @Column(name = "order_id", nullable = false, unique = true)
