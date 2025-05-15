@@ -43,4 +43,15 @@ public class PaymentController {
         List<PaymentResponse> payments = paymentService.getPaymentByUserId(userId);
         return ResponseEntity.ok(payments);
     }
+
+    @PutMapping("/update/{paymentId}")
+    public ResponseEntity<PaymentResponse> updatePayment(@PathVariable Long paymentId, @RequestBody PaymentRequest paymentRequest) {
+        Payment updatedPayment = paymentService.updatePayment(paymentId, paymentRequest);
+        // Crear respuesta de pago
+        PaymentResponse paymentResponse = new PaymentResponse();
+        paymentResponse.setPaymentStatus(updatedPayment.getPaymentStatus());
+
+
+        return ResponseEntity.ok(paymentResponse);
+    }
 }

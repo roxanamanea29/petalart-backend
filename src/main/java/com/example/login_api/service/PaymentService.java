@@ -66,10 +66,14 @@ public class PaymentService {
     }
 
 
-    // buscar pagos por usuario
 
 
-    // buscar pagos por estado
-    // buscar pagos por método de pago
+    // modificar el estado del pago de pendiente a completado
+    public Payment  updatePayment(Long paymentId) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new RuntimeException("Pago no encontrado"));
+        payment.setPaymentStatus(PaymentStatus.COMPLETED);
 
+        return paymentRepository.save(payment);
+    }
 }
