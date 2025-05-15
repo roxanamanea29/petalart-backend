@@ -1,10 +1,14 @@
 package com.example.login_api.entity;
 
+import com.example.login_api.enums.AddressType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -18,17 +22,27 @@ public class Address {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-   @ManyToMany(mappedBy = "address")
+   @ManyToMany(mappedBy = "addresses")
     private List<Order> orders;
 
     private String street;
+    private String streetNumber;
     private String city;
     private String state;
     private String country;
     private String zipCode;
-    private String phoneNumber;
-    private String addressType; // Puede ser "billing" o "shipping"
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "address_type", nullable = false)
+    private AddressType addressType;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }
