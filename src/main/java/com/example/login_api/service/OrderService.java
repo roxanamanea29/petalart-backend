@@ -43,6 +43,7 @@ public class OrderService {
         // se crea el pedido
         Order order = new Order();//se crea la instacnia de la clase Order
         order.setUser(user);//se le asigna el usuario
+        order.setAddresses(addresses);//se le asigna la lista de direcciones
         order.setDate(LocalDateTime.now());//se le asigna la fecha de creación
         order.setStatus(OrderStatus.PENDING_PAYMENT);//se le asigna el estado pendiente
 
