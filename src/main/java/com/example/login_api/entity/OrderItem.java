@@ -19,6 +19,7 @@ public class OrderItem {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long orderItemId;
+
     @ManyToOne
     @JoinColumn(name="order_id", nullable = false)
     @JsonIgnore

@@ -34,6 +34,12 @@ public class Order {
     @Column(nullable = false)
     private LocalDateTime date;
 
+    @ManyToMany
+    @JoinTable(name = "order_address",
+            joinColumns = @JoinColumn(name = "order_id"),
+            inverseJoinColumns = @JoinColumn(name = "address_id"))
+    private List<Address> address;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
