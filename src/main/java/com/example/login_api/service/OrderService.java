@@ -23,6 +23,7 @@ public class OrderService {
     private final ICartRepository cartRepository;
     private final IUserRepository userRepository;
     private final IOrderItemRepository orderItemRepository;
+    private final IAddressRepository addressRepository;
 
     public OrderResponse createOrder(Long userId) {
         //primero se busca el usuario o lanza una excepcion si no existe
@@ -36,12 +37,15 @@ public class OrderService {
         if (cart.getItems().isEmpty()) {
             throw new RuntimeException("El carrito está vacío");
         }
+        //
+        List<Address> addresses = addressRepository.findByUserId(userId);
 
         // se crea el pedido
         Order order = new Order();//se crea la instacnia de la clase Order
         order.setUser(user);//se le asigna el usuario
         order.setDate(LocalDateTime.now());//se le asigna la fecha de creación
         order.setStatus(OrderStatus.PENDING_PAYMENT);//se le asigna el estado pendiente
+
 
         //convertir el carrito a una lista de OrderItem
         List<OrderItem> orderItems = cart.getItems().stream().map(cartItem -> {//el stream se usa para recorrer la lista de items del carrito y trans
