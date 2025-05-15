@@ -46,6 +46,16 @@ public class UserEntity {
     @JsonIgnore
     private List<Cart> carts;
 
+    //relation con Order
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Order> orders;
+
+    //relation con Payment
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Payment> payments;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

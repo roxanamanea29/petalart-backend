@@ -20,7 +20,6 @@ public class Cart {
     private Long cartId;
 
     //relacion con el usuario(solo puede pertenecer a un solo usuario)
-    // En Cart:
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;

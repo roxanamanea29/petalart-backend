@@ -23,9 +23,9 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Relación con usuario (puedes usar @ManyToOne si tienes UserEntity)
+    @ManyToOne
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private UserEntity user;
 
     @Column(name = "order_id", nullable = false, unique = true)
     private String orderId;
@@ -41,10 +41,7 @@ public class Payment {
     @Column(name = "total_amount", nullable = false)
     private BigDecimal totalAmount;
 
-    @Column(name = "currency", nullable = false)
-    private String currency;
-
-    @Column(name = "transaction_id", nullable = false, unique = true)
+    @Column(name = "transaction_id", unique = true)
     private String transactionId;
 
     @CreationTimestamp
