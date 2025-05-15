@@ -18,12 +18,10 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class OrderService {
-
-    private final CartService cartService;
+    //se inyectan los repositorios necesarios para el servicio
     private final IOrderRepository orderRepository;
     private final ICartRepository cartRepository;
     private final IUserRepository userRepository;
-    private final ICartItemRepository cartItemRepository;
     private final IOrderItemRepository orderItemRepository;
 
     public OrderResponse createOrder(Long userId) {

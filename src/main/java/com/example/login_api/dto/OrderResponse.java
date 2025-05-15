@@ -13,4 +13,5 @@ public class OrderResponse {
     private LocalDateTime date;
     private BigDecimal total;
     private List<OrderItemResponse> items;
+    private List<AddressResponse> addresses;
 }
