@@ -25,7 +25,7 @@ public class OrderService {
     private final IOrderItemRepository orderItemRepository;
     private final IAddressRepository addressRepository;
 
-    public OrderResponse createOrder(Long userId) {
+    public OrderResponse createOrder(Long userId, List<Long> addressIds) {
         //primero se busca el usuario o lanza una excepcion si no existe
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado :("));

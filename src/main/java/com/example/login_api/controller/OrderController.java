@@ -47,8 +47,8 @@ public class OrderController {
 
      // create order
     @PostMapping("/create/{userId}")
-     public ResponseEntity<OrderResponse> createOrder(@PathVariable Long userId) {
-         OrderResponse order = orderService.createOrder(userId);
+     public ResponseEntity<OrderResponse> createOrder(@PathVariable Long userId, @RequestBody List<Long> addressIds) {
+         OrderResponse order = orderService.createOrder(userId, addressIds);
          return ResponseEntity.ok(order);
      }
 }
