@@ -3,19 +3,31 @@ package com.example.login_api.service;
 import com.example.login_api.dto.AddressRequest;
 import com.example.login_api.dto.AddressResponse;
 import com.example.login_api.entity.Address;
+import com.example.login_api.entity.UserEntity;
 import com.example.login_api.enums.AddressType;
 import com.example.login_api.repository.IAddressRepository;
+import com.example.login_api.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Service
 @RequiredArgsConstructor
+
 public class AddressService {
 
     private final IAddressRepository addressRepository;
+    private final IUserRepository   userRepository;
 
-    public AddressResponse saveAddress(AddressRequest request) {
+
+    public AddressResponse saveAddress(AddressRequest request, Long userId) {
+        // Validar el usuario
+        UserEntity  user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + request.getUserId()));
+
         Address addressEntity = new Address();
+        addressEntity.setUser(user);
         addressEntity.setStreet(request.getStreet());
         addressEntity.setStreetNumber(request.getStreetNumber());
         addressEntity.setCity(request.getCity());
