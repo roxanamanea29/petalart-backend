@@ -17,8 +17,9 @@ public class CartController {
     private final CartService cartService;
     private final IUserRepository userRepository;
 
-    public CartController(CartService cartService) {
+    public CartController(CartService cartService, IUserRepository userRepository) {
         this.cartService = cartService;
+        this.userRepository = userRepository;
     }
 
     // get cart
