@@ -12,13 +12,33 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.List;
+
+/**
+ * AddressService es una clase de servicio que maneja la lógica de negocio relacionada con las direcciones.
+ *
+ */
+
 @Service
 @RequiredArgsConstructor
 
 public class AddressService {
-
+    //dependencias
     private final IAddressRepository addressRepository;
     private final IUserRepository   userRepository;
+
+
+    //metodo para obtener todas las direcciones de un usuario
+    public List<AddressResponse> getAddressesByUserId(Long userId) {
+        // Validar el usuario
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+
+        List<Address> addresses = addressRepository.findByUserId(userId);
+        return addresses.stream()
+                .map(this::mapToAddressResponse)
+                .toList();
+    }
 
 
     public AddressResponse saveAddress(AddressRequest request, Long userId) {
@@ -53,10 +73,14 @@ public class AddressService {
     }
 
 
-    public AddressResponse updateAddress(Long id, AddressRequest request) {
+    public AddressResponse updateAddress(Long id, AddressRequest request, Long userId) {
         Address addressEntity = addressRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Address not found with ID: " + id));
+        if(!addressEntity.getUser().getId().equals(request.getUserId())) {
+            throw new RuntimeException("Address does not belong to the user with ID: " + request.getUserId());
+        }
 
+         //actualizar la dirección
         addressEntity.setStreet(request.getStreet());
         addressEntity.setStreetNumber(request.getStreetNumber());
         addressEntity.setCity(request.getCity());
@@ -67,22 +91,18 @@ public class AddressService {
 
         // Save the updated address entity to the database
         Address updatedAddress = addressRepository.save(addressEntity);
-        // Create a response object to return
-        AddressResponse addressResponse = new AddressResponse();
-        addressResponse.setId(updatedAddress.getId());
-        addressResponse.setStreet(updatedAddress.getStreet());
-        addressResponse.setStreetNumber(updatedAddress.getStreetNumber());
-        addressResponse.setCity(updatedAddress.getCity());
-        addressResponse.setState(updatedAddress.getState());
-        addressResponse.setCountry(updatedAddress.getCountry());
-        addressResponse.setZipCode(updatedAddress.getZipCode());
-        addressResponse.setAddressType(updatedAddress.getAddressType());
-
+        // Create a response object to retur
       return mapToAddressResponse(updatedAddress);
     }
-    public void deleteAddress(Long id) {
-        Address addressEntity = addressRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Address not found with ID: " + id));
+
+    // Eliminar una dirección por ID
+    public void deleteAddress(Long addressId, Long UserId) {
+        Address addressEntity = addressRepository.findById(addressId)
+                .orElseThrow(() -> new RuntimeException("No se ha encotrado una dorecciòn con este id: " + addressId));
+        // Verificar si la dirección pertenece al usuario
+        if (!addressEntity.getUser().getId().equals(UserId)) {
+            throw new RuntimeException("Esta dirección no es tuya : " + UserId);
+        }
         addressRepository.delete(addressEntity);
     }
 

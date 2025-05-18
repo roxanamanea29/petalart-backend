@@ -2,10 +2,8 @@ package com.example.login_api.controller;
 
 
 import com.example.login_api.dto.OrderResponse;
-import com.example.login_api.entity.Order;
 import com.example.login_api.security.UserPrincipal;
 import com.example.login_api.service.OrderService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
