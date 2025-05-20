@@ -106,7 +106,7 @@ public class AddressService {
         addressRepository.delete(addressEntity);
     }
 
-    private AddressResponse mapToAddressResponse(Address address) {
+    public AddressResponse mapToAddressResponse(Address address) {
         AddressResponse response = new AddressResponse();
         response.setId(address.getId());
         response.setStreet(address.getStreet());
@@ -117,6 +117,7 @@ public class AddressService {
         response.setZipCode(address.getZipCode());
         response.setAddressType(address.getAddressType());
         return response;
+
     }
 
 }

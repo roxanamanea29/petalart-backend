@@ -3,9 +3,11 @@ package com.example.login_api.controller;
 
 import com.example.login_api.dto.AddProductRequest;
 import com.example.login_api.dto.CartResponse;
+import com.example.login_api.dto.UpdateQuantityRequest;
 import com.example.login_api.entity.Cart;
 import com.example.login_api.repository.IUserRepository;
 import com.example.login_api.service.CartService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -33,10 +35,19 @@ public class CartController {
     public CartResponse addProductToCart(@RequestBody AddProductRequest request){
         return cartService.addProductToCart(request.getUserId(), request.getProductId(), request.getQuantity());
     }
-    // remove product from cart
-    @DeleteMapping("/remove/{userId}/{productId}")
+    // remove product from cart old
+   /* @DeleteMapping("/remove/{userId}/{productId}")
     public void removeProductFromCart(@PathVariable Long userId, @PathVariable Long productId) {
         cartService.removeProductFromCart(userId, productId);
+    }*/
+    // remove product from cart para recuperar el carrito despues de eliminar un producto
+
+    @DeleteMapping("/remove/{userId}/{productId}")
+    public ResponseEntity <CartResponse> removeProductFromCart(
+            @PathVariable Long userId,
+            @PathVariable Long productId) {
+        CartResponse updatedCart = cartService.getCartResponseByUserId(userId);
+        return ResponseEntity.ok(updatedCart);
     }
     // update product quantity old
  /*   @PutMapping("/update")
@@ -49,8 +60,7 @@ public class CartController {
     }*/
     // update product quantity utilizando el principal para descarter malas inyecciones
     @PutMapping("/update")
-    public CartResponse updateQuantity(@RequestBody AddProductRequest request, Principal principal) {
-
+    public CartResponse updateQuantity(@RequestBody UpdateQuantityRequest request, Principal principal) {
         // Get the userId from the Principal object
         String email = principal.getName();
         Long userId = userRepository.findByEmail(email)

@@ -12,4 +12,5 @@ public class PaymentRequest {
     private PaymentMethod paymentMethod;
     private BigDecimal totalAmount;
     private String transactionId;
+
 }

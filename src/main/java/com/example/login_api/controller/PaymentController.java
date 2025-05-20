@@ -2,6 +2,7 @@ package com.example.login_api.controller;
 
 import com.example.login_api.dto.PaymentRequest;
 import com.example.login_api.dto.PaymentResponse;
+import com.example.login_api.dto.PaymentStatusRequest;
 import com.example.login_api.entity.Payment;
 import com.example.login_api.entity.UserEntity;
 import com.example.login_api.repository.IUserRepository;
@@ -21,6 +22,7 @@ public class PaymentController {
     // Inyección de dependencias
     private final PaymentService paymentService;
     private final IUserRepository userRepository;
+
 
     // Implementación de métodos para manejar pagos
     // crear un nuevo pago
@@ -69,6 +71,26 @@ public class PaymentController {
     public ResponseEntity<List<PaymentResponse>> getPaymentsByUser(@PathVariable Long userId) {
         List<PaymentResponse> payments = paymentService.getPaymentByUserId(userId);
         return ResponseEntity.ok(payments);
+    }
+
+    // buscar pagos por paymentId
+    @PostMapping("/update-status")
+    public ResponseEntity<PaymentResponse> updatePaymentStatus(
+            @RequestBody PaymentStatusRequest request) {
+        // Lógica para actualizar el estado del pago
+        Payment updated = paymentService.updatePaymentStatus(request.getPaymentId(), request.getStatus());
+
+
+        PaymentResponse response = new PaymentResponse();
+        response.setId(updated.getId());
+        response.setTransactionId(updated.getTransactionId());
+        response.setOrderId(updated.getOrderId());
+        response.setTotalAmount(updated.getTotalAmount());
+        response.setPaymentMethod(updated.getPaymentMethod());
+        response.setPaymentStatus(updated.getPaymentStatus());
+        response.setCreatedAt(updated.getCreatedAt());
+        response.setUpdatedAt(updated.getUpdatedAt());
+        return ResponseEntity.ok(response);
     }
 
 }

@@ -8,6 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -35,11 +36,8 @@ public class Order {
     @Column(nullable = false)
     private LocalDateTime date;
 
-    @ManyToMany
-    @JoinTable(name = "order_address",
-            joinColumns = @JoinColumn(name = "order_id"),
-            inverseJoinColumns = @JoinColumn(name = "address_id"))
-    private List<Address> addresses;
+   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)// se usa para eliminar las direcciones que no se usan
+    private List<OrderAddress> orderAddresses = new ArrayList<>();
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

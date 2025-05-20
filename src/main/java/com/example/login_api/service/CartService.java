@@ -54,9 +54,8 @@ public class CartService {
     @Transactional
     public CartResponse addProductToCart(Long userId, Long productId, int quantity) {
         if (quantity <= 0) {
-            throw new RuntimeException("La cantidad debe ser mayor a 0");
+            throw new RuntimeException("La cantidad debe ser mayorque caero para agregar al carrito.");
         }
-
         Cart cart = getCartByUserId(userId);
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado."));
@@ -75,7 +74,7 @@ public class CartService {
         cartItemRepository.save(item);
 
         updateCartTotal(cart);
-        return convertToCartResponse(cart); // <--- devuelves DTO limpio
+        return convertToCartResponse(cart); // devuelves DTO limpio
     }
 
     // Eliminar un producto del carrito
@@ -116,17 +115,24 @@ public class CartService {
     }
 
     public CartResponse updateProductQuantity(Long userId, Long productId,int newQuantity){
-        if(newQuantity <= 0){
-            throw new RuntimeException("La cantidad debe ser mayor a 0");
-        }
+        // Obtener el carrito del usuario
         Cart cart = getCartByUserId(userId);
+        // Verificar si el producto existe
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado."));
+        // Verificar si el producto está en el carrito
         CartItem item = cartItemRepository.findByCartAndProduct(cart, product)
                 .orElseThrow(() -> new RuntimeException("El producto no está en el carrito."));
-        item.setQuantity(newQuantity);
-        cartItemRepository.save(item);
-
+        // Actualizar la cantidad del producto en el carrito
+        if (newQuantity <= 0) {
+            System.out.println("Eliminando producto del carrito con ID: " + productId);
+            cartItemRepository.delete(item);
+            cart.getItems().removeIf(i -> i.getProduct().getProductId().equals(productId));
+        } else {
+            item.setQuantity(newQuantity);
+            cartItemRepository.save(item);
+        }
+        System.out.println("Actualizando cantidad del producto en el carrito con ID: " + productId);
         return convertToCartResponse(updateCartTotal(cart));
     }
 // Obtener el carrito de un usuario (por objeto User)

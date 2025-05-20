@@ -1,6 +1,7 @@
 package com.example.login_api.controller;
 
 
+import com.example.login_api.dto.OrderRequest;
 import com.example.login_api.dto.OrderResponse;
 import com.example.login_api.security.UserPrincipal;
 import com.example.login_api.service.OrderService;
@@ -18,7 +19,8 @@ public class OrderController {
 
 
     private final OrderService orderService;
-    public OrderController(OrderService orderService) {
+    public OrderController( OrderService orderService) {
+
         this.orderService = orderService;
     }
 
@@ -45,8 +47,10 @@ public class OrderController {
 
      // create order
     @PostMapping("/create/{userId}")
-     public ResponseEntity<OrderResponse> createOrder(@PathVariable Long userId, @RequestBody List<Long> addressIds) {
-         OrderResponse order = orderService.createOrder(userId, addressIds);
+     public ResponseEntity<OrderResponse> createOrder(
+            @PathVariable Long userId,
+            @RequestBody OrderRequest request) {
+         OrderResponse order = orderService.createOrder(userId, request);
          return ResponseEntity.ok(order);
      }
 }

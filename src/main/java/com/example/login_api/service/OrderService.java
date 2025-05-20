@@ -1,7 +1,9 @@
 package com.example.login_api.service;
 
 
+import com.example.login_api.dto.AddressResponse;
 import com.example.login_api.dto.OrderItemResponse;
+import com.example.login_api.dto.OrderRequest;
 import com.example.login_api.dto.OrderResponse;
 import com.example.login_api.entity.*;
 import com.example.login_api.enums.OrderStatus;
@@ -15,6 +17,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.Arrays.stream;
+
 @Service
 @RequiredArgsConstructor
 public class OrderService {
@@ -25,30 +29,38 @@ public class OrderService {
     private final IOrderItemRepository orderItemRepository;
     private final IAddressRepository addressRepository;
 
-    public OrderResponse createOrder(Long userId, List<Long> addressIds) {
-        //primero se busca el usuario o lanza una excepcion si no existe
+    public OrderResponse createOrder(Long userId, OrderRequest orderRequest) {
+
+        //validar el usuario -> primero se busca el usuario o lanza una excepcion si no existe
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado :("));
-        // busca el carrito del usuario
+
+        //validar el carrito -> busca el carrito del usuario
         Cart cart = cartRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
-
         // se verifica que el carrito no esta vacío
         if (cart.getItems().isEmpty()) {
             throw new RuntimeException("El carrito está vacío");
         }
-        //
-        List<Address> addresses = addressRepository.findByUserId(userId);
+        //creación del pedido
+        Order order = new Order();
+        order.setUser(user);
+        order.setStatus(OrderStatus.PENDING_PAYMENT);
+        order.setDate(LocalDateTime.now());
 
-        // se crea el pedido
-        Order order = new Order();//se crea la instacnia de la clase Order
-        order.setUser(user);//se le asigna el usuario
-        order.setAddresses(addresses);//se le asigna la lista de direcciones
-        order.setDate(LocalDateTime.now());//se le asigna la fecha de creación
-        order.setStatus(OrderStatus.PENDING_PAYMENT);//se le asigna el estado pendiente
+        //se asignan las direcciones del pedido
+        List<OrderAddress> orderAddresses = addressRepository.findAllById(orderRequest.getAddressIds())
+                .stream()
+                .map(address -> {
+                    OrderAddress orderAddress = new OrderAddress();
+                    orderAddress.setOrder(order);
+                    orderAddress.setAddress(address);
+                    orderAddress.setAddressType(orderRequest.getAddressType());//se asigna el tipo de dirección
+                    return orderAddress;
+                }).collect(Collectors.toList());
+        order.setOrderAddresses(orderAddresses);
 
-
-        //convertir el carrito a una lista de OrderItem
+        //convertir el carrito a pedido
         List<OrderItem> orderItems = cart.getItems().stream().map(cartItem -> {//el stream se usa para recorrer la lista de items del carrito y trans
             OrderItem orderItem = new OrderItem();
             orderItem.setProduct(cartItem.getProduct());
@@ -57,18 +69,21 @@ public class OrderService {
             orderItem.setOrder(order);
             return orderItem;
         }).collect(Collectors.toList());//recolecta los items en una lista de tipo List<OrderItem>
-
         order.setItems(orderItems);
+
+        //calcular el total del pedido
         BigDecimal total = orderItems.stream()
                 .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         order.setTotal(total);//se le asigna el total al pedido
 
+        //guardar ttodo en la base de datos
         orderRepository.save(order);//guardar el pedido en la base de datos
         orderItemRepository.saveAll(orderItems);//guardar los items del pedido en la base de datos
-
-        cart.getItems().clear();//limpiar el carrito
-        cartRepository.save(cart);//guardar el carrito vacío en la base de datos
+        //limpiar el carrito
+        cart.getItems().clear();
+        //guardar el carrito vacío en la base de datos
+        cartRepository.save(cart);
 
         // guardar el pedido
         return mapToOrderResponseDTO(order);
@@ -85,6 +100,22 @@ public class OrderService {
                 .map(this::mapToOrderItemResponse)
                 .collect(Collectors.toList());
         dto.setItems(itemDTOs);
+        if (order.getAddresses() != null) {
+            List<AddressResponse> addressDTOs = order.getAddresses().stream()
+                    .map(address -> {
+                        AddressResponse addressDto = new AddressResponse();
+                        addressDto.setStreet(address.getStreet());
+                        addressDto.setStreetNumber(address.getStreetNumber());
+                        addressDto.setCity(address.getCity());
+                        addressDto.setState(address.getState());
+                        addressDto.setCountry(address.getCountry());
+                        addressDto.setZipCode(address.getZipCode());
+                        addressDto.setAddressType(address.getAddressType());
+                        return addressDto;
+                    })
+                    .collect(Collectors.toList());
+            dto.setAddresses(addressDTOs);
+        }
 
         return dto;
     }

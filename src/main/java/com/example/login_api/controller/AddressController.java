@@ -31,7 +31,6 @@ public class AddressController {
         return ResponseEntity.ok(addresses);
     }
 
-
     // metodo para añadir una nueva direccion
     @PostMapping("/save")
     public ResponseEntity<AddressResponse>  saveAddress(@RequestBody AddressRequest request,
@@ -52,11 +51,12 @@ public class AddressController {
 
     // metodo para eliminar una direccion
     @DeleteMapping("/delete/{addressId}")
-    public void  deleteAddress( Long addressId, Long userId) {
+    public void  deleteAddress( @PathVariable Long addressId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        Long userId = Long.valueOf(userPrincipal.getUserId());
         Address address = addressRepository.findById(addressId)
-                .orElseThrow(() -> new RuntimeException("Address not found with ID: " + addressId));
+                .orElseThrow(() -> new RuntimeException("Dirección no encontradoa con este ID " + addressId));
         if (!address.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Address does not belong to the user with ID: " + userId);
+            throw new RuntimeException("Esta dirección no pertenece al usuario con el ID: " + userId);
         }
         addressRepository.deleteById(addressId);
     }

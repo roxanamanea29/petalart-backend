@@ -68,4 +68,12 @@ public class PaymentService {
                 ))
                 .toList();
     }
+
+    // metodo para modificar el estado de un pago
+    public Payment updatePaymentStatus(Long paymentId, PaymentStatus status) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new RuntimeException("Pago no encontrado con ID: " + paymentId));
+        payment.setPaymentStatus(status);
+        return paymentRepository.save(payment);
+    }
 }
