@@ -14,16 +14,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderAddress {
-
-    @EmbeddedId
-    private OrderAddressId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne
-    @MapsId("orderId")
     private Order order;
 
     @ManyToOne
-    @MapsId("addressId")
     private Address address;
 
     @Enumerated(EnumType.STRING)

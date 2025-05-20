@@ -91,19 +91,26 @@ public class OrderService {
 
     //mapea un Order a un OrderResponse
     private OrderResponse mapToOrderResponseDTO(Order order) {
+
         OrderResponse dto = new OrderResponse();
         dto.setId(order.getId());
         dto.setDate(order.getDate());
         dto.setTotal(order.getTotal());
 
+        //mapealos items del pedido
         List<OrderItemResponse> itemDTOs = order.getItems().stream()
                 .map(this::mapToOrderItemResponse)
                 .collect(Collectors.toList());
         dto.setItems(itemDTOs);
-        if (order.getAddresses() != null) {
-            List<AddressResponse> addressDTOs = order.getAddresses().stream()
-                    .map(address -> {
+
+        //mapea las direcciones del pedido OrderAddresss-<>Address ->addresseResponse
+        if (order.getOrderAddresses() != null) {
+            List<AddressResponse> addressDTOs = order.getOrderAddresses().stream()
+                    .map(orderAddress -> {
+                        Address address = orderAddress.getAddress();//se obtiene la dirección del pedido
+                        //mapea la dirección a un AddressResponse
                         AddressResponse addressDto = new AddressResponse();
+                        addressDto.setId(address.getId());
                         addressDto.setStreet(address.getStreet());
                         addressDto.setStreetNumber(address.getStreetNumber());
                         addressDto.setCity(address.getCity());
@@ -116,7 +123,6 @@ public class OrderService {
                     .collect(Collectors.toList());
             dto.setAddresses(addressDTOs);
         }
-
         return dto;
     }
 

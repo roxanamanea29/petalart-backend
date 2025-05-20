@@ -36,7 +36,7 @@ public class Order {
     @Column(nullable = false)
     private LocalDateTime date;
 
-   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)// se usa para eliminar las direcciones que no se usan
+   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)// se usa para eliminar las direcciones que no se usan?
     private List<OrderAddress> orderAddresses = new ArrayList<>();
 
     @CreationTimestamp

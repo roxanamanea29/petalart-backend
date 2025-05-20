@@ -25,8 +25,8 @@ public class Address {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-   @ManyToMany(mappedBy = "addresses")
-    private List<Order> orders;
+   @OneToMany(mappedBy = "address" , cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderAddress> orderAddresses;
 
     private String street;
     private String streetNumber;
@@ -42,6 +42,7 @@ public class Address {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
