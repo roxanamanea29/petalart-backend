@@ -15,7 +15,7 @@ public interface IOrderRepository extends JpaRepository<Order, Long> {
     // Aquí puedes agregar métodos personalizados si es necesario
     // Por ejemplo, encontrar órdenes por estado, usuario,
     // Busca un order pos etc.
-     Optional<Order> findByStatus(OrderStatus status);
+     Optional<Order> findByOrderStatus(OrderStatus orderStatus);
     List<Order> findByUser(UserEntity user);
 
 }

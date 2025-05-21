@@ -7,6 +7,7 @@ import com.example.login_api.dto.OrderRequest;
 import com.example.login_api.dto.OrderResponse;
 import com.example.login_api.entity.*;
 import com.example.login_api.enums.OrderStatus;
+import com.example.login_api.enums.PaymentStatus;
 import com.example.login_api.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,8 +17,6 @@ import java.time.LocalDateTime;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static java.util.Arrays.stream;
 
 @Service
 @RequiredArgsConstructor
@@ -45,8 +44,11 @@ public class OrderService {
         //creación del pedido
         Order order = new Order();
         order.setUser(user);
-        order.setStatus(OrderStatus.PENDING_PAYMENT);
+        order.setOrderStatus(OrderStatus.PAID);//se asigna el estado del pedido
+        order.setPaymentStatus(PaymentStatus.PENDING); //se asigna el estado del pago
         order.setDate(LocalDateTime.now());
+        order.setPaymentMethod(orderRequest.getPaymentMethod());//se asigna el método de pago
+        order.setShippingMethod(orderRequest.getShippingMethod());//se asigna el método de envíoaho
 
         //se asignan las direcciones del pedido
         List<OrderAddress> orderAddresses = addressRepository.findAllById(orderRequest.getAddressIds())
@@ -117,7 +119,8 @@ public class OrderService {
                         addressDto.setState(address.getState());
                         addressDto.setCountry(address.getCountry());
                         addressDto.setZipCode(address.getZipCode());
-                        addressDto.setAddressType(address.getAddressType());
+                        addressDto.setAddressType(orderAddress.getAddressType());
+
                         return addressDto;
                     })
                     .collect(Collectors.toList());
