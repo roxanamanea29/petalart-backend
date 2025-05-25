@@ -5,10 +5,12 @@ import com.example.login_api.dto.OrderResponse;
 import com.example.login_api.security.UserPrincipal;
 import com.example.login_api.service.OrderService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -56,10 +58,15 @@ public class OrderController {
          return ResponseEntity.ok(order);
      }
 
-     @DeleteMapping("/{orderId}")
-        public ResponseEntity<Void> deleteOrder(@PathVariable Long orderId) {
-            orderService.deleteOrder(orderId);
-            return ResponseEntity.noContent().build();
-        }
+        //delete order
 
+     @DeleteMapping("/{orderId}")
+        public ResponseEntity<String> deleteOrder(@PathVariable Long orderId) {
+         try {
+             orderService.deleteOrder(orderId);
+             return ResponseEntity.noContent().build();
+         } catch (RuntimeException e) {
+             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message ",e.getMessage()).toString());
+         }
+     }
 }

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * AddressService es una clase de servicio que maneja la lógica de negocio relacionada con las direcciones.
@@ -46,16 +47,31 @@ public class AddressService {
         UserEntity  user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + request.getUserId()));
 
-        Address addressEntity = new Address();
-        addressEntity.setUser(user);
-        addressEntity.setStreet(request.getStreet());
-        addressEntity.setStreetNumber(request.getStreetNumber());
-        addressEntity.setCity(request.getCity());
-        addressEntity.setState(request.getState());
-        addressEntity.setCountry(request.getCountry());
-        addressEntity.setZipCode(request.getZipCode());
-        addressEntity.setAddressType(AddressType.valueOf(request.getAddressType()));
-
+        Optional<Address> existingAddress = addressRepository.findByUserAndStreetStreetNumberCityZipCodeCountry(
+                user,
+                request.getStreet(),
+                request.getStreetNumber(),
+                request.getCity(),
+                request.getZipCode(),
+                request.getCountry()
+        );
+        Address addressEntity;
+        // busca si la dirección ya existe para el usuario
+        if (existingAddress.isPresent()) {
+            // si existe, se actualiza la dirección
+            addressEntity = existingAddress.get();
+        } else {
+            //si no existe se añade una nueva dirección
+            addressEntity = new Address();
+            addressEntity.setUser(user);
+            addressEntity.setStreet(request.getStreet());
+            addressEntity.setStreetNumber(request.getStreetNumber());
+            addressEntity.setCity(request.getCity());
+            addressEntity.setState(request.getState());
+            addressEntity.setCountry(request.getCountry());
+            addressEntity.setZipCode(request.getZipCode());
+            addressEntity.setAddressType(AddressType.valueOf(request.getAddressType()));
+        }
         // Save the address entity to the database
         Address savedAddress = addressRepository.save(addressEntity);
         // Create a response object to return
@@ -71,6 +87,7 @@ public class AddressService {
 
       return mapToAddressResponse(savedAddress);
     }
+
 
 
     public AddressResponse updateAddress(Long id, AddressRequest request, Long userId) {
