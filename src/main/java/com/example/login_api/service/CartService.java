@@ -47,7 +47,23 @@ public class CartService {
                 });
     }
 
+    public CartResponse getCartResponseByEmail(String email) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
 
+        Cart cart = cartRepository.findByUser(user)
+                .orElseGet(() -> {
+                    Cart newCart = new Cart();
+                    newCart.setUser(user);
+                    newCart.setItems(new ArrayList<>());
+                    newCart.setTotalPrice(BigDecimal.ZERO);
+                    newCart.setCreatedAt(LocalDateTime.now());
+                    newCart.setUpdatedAt(LocalDateTime.now());
+                    return cartRepository.save(newCart);
+                });
+
+        return convertToCartResponse(cart);
+    }
 
 
     // Agregar un producto al carrito

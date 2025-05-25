@@ -3,6 +3,7 @@ package com.example.login_api.enums;
 /**
  * Enum para los tipos de dirección.
  */
+
 public enum AddressType {
     // Dirección de envío
     SHIPPING("Dirección de envío"),

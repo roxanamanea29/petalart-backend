@@ -167,4 +167,20 @@ public class OrderService {
         dto.setPrice(item.getPrice());
         return dto;
     }
+
+    public void deleteOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado :("));
+            if (order.getOrderStatus() == null ||
+                order.getPaymentStatus() == null ||
+                order.getPaymentMethod() == null ||
+                order.getShippingMethod() == null
+        ) {throw new RuntimeException("No se puede eliminar una orden incompleto (campos nulos)");}
+
+    if(order.getOrderStatus() == OrderStatus.PAID ||
+            order.getOrderStatus() == OrderStatus.DELIVERED) {
+            throw new RuntimeException("No se puede eliminar un pedido que no está pendiente");
+        }
+        orderRepository.delete(order);
+    }
 }

@@ -4,7 +4,6 @@ package com.example.login_api.controller;
 import com.example.login_api.dto.AddProductRequest;
 import com.example.login_api.dto.CartResponse;
 import com.example.login_api.dto.UpdateQuantityRequest;
-import com.example.login_api.entity.Cart;
 import com.example.login_api.repository.IUserRepository;
 import com.example.login_api.service.CartService;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +24,10 @@ public class CartController {
     }
 
     // get cart
-    @GetMapping("/user/{userId}")
-    public CartResponse getCart(@PathVariable Long userId) {
-        return cartService.getCartResponseByUserId(userId);
+    @GetMapping("/my-cart")
+    public ResponseEntity<CartResponse> getMyCart(Principal principal) {
+        String email = principal.getName();
+        return ResponseEntity.ok(cartService.getCartResponseByEmail(email));
     }
 
     // add product to cart

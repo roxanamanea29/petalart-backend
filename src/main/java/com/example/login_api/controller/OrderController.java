@@ -1,9 +1,7 @@
 package com.example.login_api.controller;
 
-
 import com.example.login_api.dto.OrderRequest;
 import com.example.login_api.dto.OrderResponse;
-import com.example.login_api.repository.IOrderRepository;
 import com.example.login_api.security.UserPrincipal;
 import com.example.login_api.service.OrderService;
 import lombok.AllArgsConstructor;
@@ -20,7 +18,6 @@ public class OrderController {
 
 
     private final OrderService orderService;
-    private final IOrderRepository orderRepository;
 
 
     @GetMapping("/all")
@@ -59,5 +56,10 @@ public class OrderController {
          return ResponseEntity.ok(order);
      }
 
+     @DeleteMapping("/{orderId}")
+        public ResponseEntity<Void> deleteOrder(@PathVariable Long orderId) {
+            orderService.deleteOrder(orderId);
+            return ResponseEntity.noContent().build();
+        }
 
 }
