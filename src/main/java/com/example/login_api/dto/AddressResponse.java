@@ -15,4 +15,9 @@ public class AddressResponse {
     private String zipCode;
     private AddressType addressType;
 
+    // Datos del usuario
+    private Long userId;
+    private String userName;
+    private String userEmail;
+
 }

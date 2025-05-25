@@ -73,5 +73,4 @@ public class UserEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;// fecha de actualización del usuario
 
-
 }

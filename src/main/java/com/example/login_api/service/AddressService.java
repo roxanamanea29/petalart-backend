@@ -128,6 +128,12 @@ public class AddressService {
         response.setCountry(address.getCountry());
         response.setZipCode(address.getZipCode());
         response.setAddressType(address.getAddressType());
+
+        //datos del usuario
+        UserEntity addressUser = address.getUser();
+        response.setUserId(addressUser.getId());
+        response.setUserEmail(address.getUser().getEmail());
+        response.setUserName(address.getUser().getFirstName() + " " + address.getUser().getLastName());
         return response;
 
     }
