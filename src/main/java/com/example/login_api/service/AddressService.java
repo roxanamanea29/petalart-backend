@@ -9,8 +9,6 @@ import com.example.login_api.repository.IAddressRepository;
 import com.example.login_api.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +40,7 @@ public class AddressService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
 
-        List<Address> addresses = addressRepository.findByUserId(userId);
+        List<Address> addresses = addressRepository.findByUser(user);
         return addresses.stream()
                 .map(this::mapToAddressResponse)
                 .toList();
@@ -67,6 +65,7 @@ public class AddressService {
         if (existingAddress.isPresent()) {
             // si existe, se actualiza la dirección
             addressEntity = existingAddress.get();
+            addressEntity.setAddressType(AddressType.valueOf(request.getAddressType()));
         } else {
             //si no existe se añade una nueva dirección
             addressEntity = new Address();
@@ -81,17 +80,6 @@ public class AddressService {
         }
         // Save the address entity to the database
         Address savedAddress = addressRepository.save(addressEntity);
-        // Create a response object to return
-        AddressResponse addressResponse = new AddressResponse();
-        addressResponse.setId(savedAddress.getId());
-        addressResponse.setStreet(savedAddress.getStreet());
-        addressResponse.setStreetNumber(savedAddress.getStreetNumber());
-        addressResponse.setCity(savedAddress.getCity());
-        addressResponse.setState(savedAddress.getState());
-        addressResponse.setCountry(savedAddress.getCountry());
-        addressResponse.setZipCode(savedAddress.getZipCode());
-        addressResponse.setAddressType(savedAddress.getAddressType());
-
       return mapToAddressResponse(savedAddress);
     }
 

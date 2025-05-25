@@ -21,4 +21,6 @@ public interface IAddressRepository extends JpaRepository<Address, Long> {// Jpa
             String zipCode,
             String country
     );
+
+    List<Address> findByUser(UserEntity user);
 }
