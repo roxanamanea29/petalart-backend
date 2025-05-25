@@ -1,5 +1,6 @@
 package com.example.login_api.controller;
 
+import com.example.login_api.dto.RegisterRequest;
 import com.example.login_api.entity.UserEntity;
 import com.example.login_api.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,19 @@ import java.util.Optional;
 public class AdminController {
 
     private final UserService userService;
+
+    @PostMapping("/user")
+    public ResponseEntity<UserEntity> createUserAsAdmin(@RequestBody UserEntity user) {
+
+        RegisterRequest registerRequest = new RegisterRequest();
+        registerRequest.setFirstName(user.getFirstName());
+        registerRequest.setLastName(user.getLastName());
+        registerRequest.setEmail(user.getEmail());
+        registerRequest.setPassword(user.getPassword());
+        registerRequest.setPhone(user.getPhone());
+        registerRequest.setRole(user.getRole());
+        return ResponseEntity.ok(userService.registerUser(registerRequest));
+    }
 
     // Obtener todos los usuarios (solo admins pueden acceder)
     @GetMapping("/users")
@@ -44,11 +58,13 @@ public class AdminController {
 
     // Eliminar un usuario (solo admins pueden eliminar usuarios)
     @DeleteMapping("/user/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+    @PreAuthorize("hasRole('ADMIN')")  // Aseguramos que solo ADMIN pueda eliminar usuarios
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         try {
-            return userService.deleteUser(id);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body("Usuario no encontrado");
+            userService.deleteUser(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
         }
     }
 

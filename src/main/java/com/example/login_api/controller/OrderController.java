@@ -3,25 +3,30 @@ package com.example.login_api.controller;
 
 import com.example.login_api.dto.OrderRequest;
 import com.example.login_api.dto.OrderResponse;
+import com.example.login_api.repository.IOrderRepository;
 import com.example.login_api.security.UserPrincipal;
 import com.example.login_api.service.OrderService;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 
 @RestController
 @RequestMapping("/order")
-
+@AllArgsConstructor
 public class OrderController {
 
 
     private final OrderService orderService;
-    public OrderController( OrderService orderService) {
+    private final IOrderRepository orderRepository;
 
-        this.orderService = orderService;
+
+    @GetMapping("/all")
+    public ResponseEntity<List<OrderResponse>> getAllOrders() {
+        List<OrderResponse> orders = orderService.getAllOrders();
+        return ResponseEntity.ok(orders);
     }
 
     // Admin o debug
@@ -53,4 +58,6 @@ public class OrderController {
          OrderResponse order = orderService.createOrder(userId, request);
          return ResponseEntity.ok(order);
      }
+
+
 }

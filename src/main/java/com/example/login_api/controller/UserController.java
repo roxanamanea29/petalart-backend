@@ -1,84 +1,40 @@
 package com.example.login_api.controller;
 
-import com.example.login_api.dto.UpdateUserRequest;
-import com.example.login_api.dto.UserResponse;
+
+import com.example.login_api.dto.ProfileResponse;
+import com.example.login_api.dto.UpdateProfileRequest;
 import com.example.login_api.entity.UserEntity;
-import com.example.login_api.exception.EmailAlreadyExistsException;
-import com.example.login_api.dto.RegisterRequest;
-import com.example.login_api.dto.RegisterResponse;
 import com.example.login_api.repository.IUserRepository;
+import com.example.login_api.security.UserPrincipal;
 import com.example.login_api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+
+/*
+* Permite a los usuarios gestionar el propio perfil.
+		Endpoints:
+		GET /user/profile → Ver su perfil
+		PUT /user/profile → Actualizar su  perfil
+		DELETE /user/profile → Eliminar  su cuenta
+* */
+
+
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
+@RequestMapping("/user")
+@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 public class UserController {
 
     private final UserService userService;
-    private final IUserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-
-
-    @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<UserResponse> register(@RequestBody RegisterRequest registerRequest) {
-        try {
-            var user = userService.registerUser(registerRequest);
-            return ResponseEntity.status(HttpStatus.CREATED).body(
-                    new UserResponse(
-                            user.getId(),
-                            user.getFirstName(),
-                            user.getLastName(),
-                            user.getEmail(),
-                            user.getPhone(),
-                            user.getRole(),
-                            user.getCreatedAt(),
-                            user.getUpdatedAt()
-                    )
-            );
-        } catch (EmailAlreadyExistsException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-    }
-
-
-    @Transactional
-    @PutMapping("/user/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')") // <- nombre correcto del rol
-    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequest dto) {
-        Optional<UserEntity> optionalUser = userRepository.findById(id);
-
-        if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
-        }
-
-        UserEntity existingUser = optionalUser.get();
-        existingUser.setFirstName(dto.getFirstName());
-        existingUser.setLastName(dto.getLastName());
-        existingUser.setEmail(dto.getEmail());
-        existingUser.setPhone(dto.getPhone());
-        existingUser.setRole(dto.getRole());
-
-        // Solo actualiza la contraseña si viene una nueva
-        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
-            existingUser.setPassword(passwordEncoder.encode(dto.getPassword())); // <- cerrado correctamente
-        }
-
-        userRepository.save(existingUser);
-        return ResponseEntity.ok("Usuario actualizado con éxito");
-    }
 
     @GetMapping("/dashboard")
     public ResponseEntity<String> getDashboard() {
@@ -89,36 +45,28 @@ public class UserController {
     public ResponseEntity<?> getUsers() {
         return ResponseEntity.ok(userService.getUsers());
     }
-    @GetMapping("/profile")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getProfile(Principal principal) {
-        if (principal == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no autenticado");
-        }
 
-        String email = principal.getName();
-        Optional<UserEntity> user = userRepository.findByEmail(email);
+     @GetMapping("/profile")
+    public ResponseEntity<ProfileResponse> getProfile(@AuthenticationPrincipal UserPrincipal principal) {
 
-        if (user.isPresent()) {
-            UserEntity userData = user.get();
+          // Crear y poblar el DTO
+          ProfileResponse response = new ProfileResponse(
+        principal.getFirstName() + " " + principal.getLastName(),
+                    principal.getEmail(),
+                    principal.getAuthorities().iterator().next().getAuthority()
+            );
+          return ResponseEntity.ok(response);
 
-            Map<String, Object> profileData = new HashMap<>();
-            profileData.put("name", userData.getFirstName() + " " + userData.getLastName());
-            profileData.put("email", userData.getEmail());
-            profileData.put("role", userData.getRole());
-
-            return ResponseEntity.ok(profileData);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
-        }
     }
-
     @PutMapping("/profile")
-    public ResponseEntity<UserEntity> updateProfile(Principal principal, @RequestBody UserEntity updatedUser) {
-        String email = principal.getName();
-        UserEntity user = userService.updateProfile(email, updatedUser);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<UserEntity> updateProfile(@AuthenticationPrincipal UserPrincipal principal,
+                                                    @RequestBody UpdateProfileRequest req) {
+
+        UserEntity updated = userService.updateProfile(principal.getEmail(), req);
+        return ResponseEntity.ok(updated);
     }
+
+    /*Eliminar uenta propia*/
 
     @DeleteMapping("/profile")
     public ResponseEntity<String> deleteProfile(Principal principal) {

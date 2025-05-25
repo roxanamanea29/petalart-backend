@@ -35,7 +35,9 @@ public class CategoryController {
         return categoryService.findAll();
     }
 
+
     //  Primero el endpoint literal
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/with-products")
     public List<CategoryWithProducts> getCategoriesWithProducts() {
         return categoryService.categoryWithProducts();
@@ -52,8 +54,6 @@ public class CategoryController {
     public CategoryResponse updateCategory(@PathVariable Long id, @RequestBody CategoryRequest request) {
         return categoryService.update(id, request); // actualiza la categoría y la devuelve como DTO
     }
-
-
 
     //metodo para eliminar una categoría
     @PreAuthorize("hasRole('ADMIN')")

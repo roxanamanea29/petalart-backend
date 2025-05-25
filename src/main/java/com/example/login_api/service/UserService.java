@@ -1,5 +1,6 @@
 package com.example.login_api.service;
 
+import com.example.login_api.dto.UpdateProfileRequest;
 import com.example.login_api.entity.UserEntity;
 import com.example.login_api.dto.RegisterRequest;
 import com.example.login_api.repository.IUserRepository;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +44,8 @@ public class UserService {
         newUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         newUser.setPhone(registerRequest.getPhone());
 
-        // 👇 Esta es la parte nueva: lógica para asignar rol
+        // Esta es la parte nueva: lógica para asignar rol
+        // Asignar rol de ADMIN si es el primer usuario, de lo contrario asignar USER
         long totalUsuarios = userRepository.count();
         if (totalUsuarios == 0) {
             newUser.setRole("ROLE_ADMIN");
@@ -63,6 +66,7 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    @Transactional
     public UserEntity updateUser(Long id, UserEntity user) {
         UserEntity existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -90,20 +94,15 @@ public class UserService {
         return ResponseEntity.ok("usuario eliminado");
     }
     // Lógica de negocio para actualizar el perfil de un usuario para el cliente
-    public UserEntity updateProfile(String email, UserEntity updatedUser) {
-        Optional<UserEntity> existingUserOptional = userRepository.findByEmail(email);
-
-        if (existingUserOptional.isPresent()) {
-            UserEntity existingUser = existingUserOptional.get();
-            existingUser.setFirstName(updatedUser.getFirstName());
-            existingUser.setLastName(updatedUser.getLastName());
-            existingUser.setEmail(updatedUser.getEmail());
-            existingUser.setPassword(updatedUser.getPassword());  // Si es necesario, puedes encriptar la contraseña
-            existingUser.setPhone(updatedUser.getPhone());
-            return userRepository.save(existingUser);
-        } else {
-            throw new RuntimeException("Usuario no encontrado");
-        }
+    public UserEntity updateProfile(String email, UpdateProfileRequest dto) {
+        UserEntity existing = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        // Sólo sobreescribimos los campos permitidos:
+        existing.setFirstName(dto.getFirstName());
+        existing.setLastName( dto.getLastName() );
+        existing.setPhone(    dto.getPhone()    );
+        // (no tocamos email ni password aquí)
+        return userRepository.save(existing);
     }
 
     //logica para eliminar el perfil de un usuario

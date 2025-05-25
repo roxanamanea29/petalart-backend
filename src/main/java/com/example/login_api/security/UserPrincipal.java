@@ -1,6 +1,7 @@
 package com.example.login_api.security;
 
 
+import com.example.login_api.entity.UserEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,11 +9,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
+
 
 @Getter
 @Builder
-public class UserPrincipal implements UserDetails {//UserDetails is an interface that Spring Security uses to represent user details
+public class UserPrincipal implements UserDetails {//UserDetails es una interfaz de Spring Security que representa los detalles del usuario autenticados
     private final Long userId;
 
     private final String email;
@@ -29,7 +30,6 @@ public class UserPrincipal implements UserDetails {//UserDetails is an interface
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
     }
-
     @Override
     public String getPassword() {
         return password;
@@ -59,4 +59,19 @@ public class UserPrincipal implements UserDetails {//UserDetails is an interface
     public boolean isEnabled() {
         return true;
     }
+
+
+
+    public UserEntity getUser() {
+        UserEntity user = new UserEntity();
+        user.setId(this.userId);
+        user.setEmail(this.email);
+        user.setFirstName(this.firstName);
+        user.setLastName(this.lastName);
+        user.setPassword(this.password);
+        // Set other necessary fields
+        return user;
+    }
+
+
 }

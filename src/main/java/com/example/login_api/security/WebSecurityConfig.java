@@ -47,7 +47,10 @@ public class WebSecurityConfig {
         //  Seguridad por rutas
         http
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,   "/categories/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,    "/categories/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/categories/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET,    "/categories/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/with-products/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/cart/**").permitAll()
@@ -55,16 +58,19 @@ public class WebSecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/auth/dashboard").hasRole("USER")
                         .requestMatchers("/auth/login", "/auth/register").permitAll()
-                        .requestMatchers("/auth/profile").authenticated()
+                        .requestMatchers("/user/profile").hasAnyRole("USER", "ADMIN")
+                                .requestMatchers("/admin/**").authenticated()
                                 .requestMatchers("/payment/**").authenticated()
                                 .requestMatchers("/address/**").authenticated()
-/*
-                        // 🛡️ Solo admin puede crear/editar/borrar
-                        .requestMatchers(HttpMethod.POST, "/categories").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/categories/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/categories/**").hasRole("ADMIN")*/
 
-                        //
+                                .requestMatchers("/admin/products").hasRole("ADMIN")
+                                .requestMatchers("/admin/products/**").hasRole("ADMIN")
+                                .requestMatchers("/admin/user/**").hasRole("ADMIN")
+                                .requestMatchers("/admin/users/**").hasRole("ADMIN")
+                                .requestMatchers("/admin/orders").hasRole("ADMIN")
+                                .requestMatchers("/admin/orders/**").hasRole("ADMIN")
+                                .requestMatchers("/admin/payments").hasRole("ADMIN")
+                                .requestMatchers("/admin/payments/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

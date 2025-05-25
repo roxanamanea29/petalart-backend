@@ -11,10 +11,8 @@ import com.example.login_api.enums.PaymentStatus;
 import com.example.login_api.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +25,14 @@ public class OrderService {
     private final IUserRepository userRepository;
     private final IOrderItemRepository orderItemRepository;
     private final IAddressRepository addressRepository;
+
+    public List<OrderResponse> getAllOrders() {
+        List<Order> orders = orderRepository.findAll();
+        return orders.stream()
+                .map(this::mapToOrderResponseDTO)
+                .collect(Collectors.toList());
+    }
+
 
     public OrderResponse createOrder(Long userId, OrderRequest orderRequest) {
 
@@ -98,6 +104,12 @@ public class OrderService {
         dto.setId(order.getId());
         dto.setDate(order.getDate());
         dto.setTotal(order.getTotal());
+        dto.setUserId(order.getUser().getId());
+        dto.setOrderStatus(order.getOrderStatus());
+        dto.setPaymentStatus(order.getPaymentStatus());
+        dto.setPaymentMethod(order.getPaymentMethod() != null ? order.getPaymentMethod().name() : null);
+        dto.setShippingMethod(order.getShippingMethod() != null ? order.getShippingMethod().name() : null);
+
 
         //mapealos items del pedido
         List<OrderItemResponse> itemDTOs = order.getItems().stream()
