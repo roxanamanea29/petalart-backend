@@ -29,6 +29,13 @@ public class AddressService {
     private final IUserRepository   userRepository;
 
 
+    //metodo para obtener todas las direcciones
+    public List<AddressResponse> getAllAddresses() {
+        List<Address> addresses = addressRepository.findAll();
+        return addresses.stream()
+                .map(this::mapToAddressResponse)
+                .toList();
+    }
     //metodo para obtener todas las direcciones de un usuario
     public List<AddressResponse> getAddressesByUserId(Long userId) {
         // Validar el usuario
@@ -47,7 +54,7 @@ public class AddressService {
         UserEntity  user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + request.getUserId()));
 
-        Optional<Address> existingAddress = addressRepository.findByUserAndStreetStreetNumberCityZipCodeCountry(
+        Optional<Address> existingAddress = addressRepository.findByUserAndStreetAndStreetNumberAndCityAndZipCodeAndCountry(
                 user,
                 request.getStreet(),
                 request.getStreetNumber(),

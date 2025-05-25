@@ -13,7 +13,7 @@ public interface IAddressRepository extends JpaRepository<Address, Long> {// Jpa
 
     List<Address> findByUserId(Long userId); // metodo para buscar todas las direcciones de un usuario por su id
 
-    Optional<Address> findByUserAndStreetStreetNumberCityZipCodeCountry(
+    Optional<Address> findByUserAndStreetAndStreetNumberAndCityAndZipCodeAndCountry(
             UserEntity user,
             String street,
             String streetNumber,

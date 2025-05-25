@@ -23,6 +23,12 @@ public class AddressController {
     private final AddressService addressService;
     private final IAddressRepository addressRepository;
 
+    // metodo utilizado para obtener todas las direcciones
+    @GetMapping("/all")
+    public ResponseEntity<List<AddressResponse>> getAllAddresses() {
+        List<AddressResponse> addresses = addressService.getAllAddresses();
+        return ResponseEntity.ok(addresses);
+    }
     // metodo para obtener todas las direcciones de un usuario
     @GetMapping("/my-addresses")
     public ResponseEntity<List<AddressResponse>> getAddressesByUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
