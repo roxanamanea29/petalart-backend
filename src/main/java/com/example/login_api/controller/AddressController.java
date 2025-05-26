@@ -9,7 +9,6 @@ import com.example.login_api.service.AddressService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -24,7 +23,7 @@ public class AddressController {
     private final IAddressRepository addressRepository;
 
     // metodo utilizado para obtener todas las direcciones
-    @GetMapping("/all")
+    @GetMapping("/listado")
     public ResponseEntity<List<AddressResponse>> getAllAddresses() {
         List<AddressResponse> addresses = addressService.getAllAddresses();
         return ResponseEntity.ok(addresses);

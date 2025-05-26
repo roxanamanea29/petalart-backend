@@ -1,9 +1,11 @@
 package com.example.login_api.enums;
 
+import lombok.Getter;
+
 /**
  * Enum para los tipos de dirección.
  */
-
+@Getter
 public enum AddressType {
     // Dirección de envío
     SHIPPING("Dirección de envío"),
@@ -16,9 +18,5 @@ public enum AddressType {
 
     AddressType(String displayName) {
         this.displayName = displayName;
-    }
-
-    public String getDisplayName() {
-        return displayName;
     }
 }

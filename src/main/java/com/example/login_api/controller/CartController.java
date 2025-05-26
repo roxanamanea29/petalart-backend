@@ -30,6 +30,12 @@ public class CartController {
         return ResponseEntity.ok(cartService.getCartResponseByEmail(email));
     }
 
+    //
+   /* @GetMapping("my-cart")
+    public ResponseEntity<CartResponse> getCart() {
+        return ResponseEntity.ok(cartService.getCartResponseByUserId(1L));
+    }*/
+
     // add product to cart
     @PostMapping("/add")
     public CartResponse addProductToCart(@RequestBody AddProductRequest request){
