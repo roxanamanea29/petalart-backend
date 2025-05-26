@@ -1,4 +1,4 @@
-FROM gradle:jdk23 AS build
+FROM gradle:jdk17 AS build
 
 WORKDIR /workspace/app
 
@@ -11,7 +11,7 @@ COPY src src
 RUN chmod +x ./gradlew
 RUN ./gradlew bootJar --no-daemon
 
-FROM openjdk:23-jdk
+FROM openjdk:17-jdk
 VOLUME /tmp
 WORKDIR /app
 
