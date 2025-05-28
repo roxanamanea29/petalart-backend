@@ -47,11 +47,12 @@ public class AddressService {
     }
 
 
+    //guarda la direccion del usuario
     public AddressResponse saveAddress(AddressRequest request, Long userId) {
-        // Validar el usuario
+        // Validar el usuario sino lanza una excepcion
         UserEntity  user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + request.getUserId()));
-
+    //busca por si existe direccion con los mismos datos
         Optional<Address> existingAddress = addressRepository.findByUserAndStreetAndStreetNumberAndCityAndZipCodeAndCountry(
                 user,
                 request.getStreet(),
@@ -60,6 +61,7 @@ public class AddressService {
                 request.getZipCode(),
                 request.getCountry()
         );
+        //crea una direción nuevo o modifica la existente
         Address addressEntity;
         // busca si la dirección ya existe para el usuario
         if (existingAddress.isPresent()) {
@@ -84,10 +86,12 @@ public class AddressService {
     }
 
 
-
+    //actualiza la dieccion utilizndo el id de la direcion y el id del usuario
     public AddressResponse updateAddress(Long id, AddressRequest request, Long userId) {
+        //verifica si el usuario existe sino lanza una excepcion
         Address addressEntity = addressRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Address not found with ID: " + id));
+        //si la direcion no le pertnece al ususrio da error
         if(!addressEntity.getUser().getId().equals(request.getUserId())) {
             throw new RuntimeException("Address does not belong to the user with ID: " + request.getUserId());
         }
@@ -118,6 +122,7 @@ public class AddressService {
         addressRepository.delete(addressEntity);
     }
 
+    //metodo para transformar lso datos de la direcion en una respuesta
     public AddressResponse mapToAddressResponse(Address address) {
         AddressResponse response = new AddressResponse();
         response.setId(address.getId());

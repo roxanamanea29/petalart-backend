@@ -29,32 +29,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 1️⃣ Extraer token del header Authorization (si existe)
+        // Extraer token del header Authorization (si existe)
         Optional<String> tokenOpt = extractTokenFromRequest(request);
 
-        // 2️⃣ Si no hay token, continuar sin autenticación (permite rutas públicas)
+        // Si no hay token, continuar sin autenticación (permite rutas públicas)
         if (tokenOpt.isEmpty()) {
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
-            // 3️⃣ Decodificar y validar token
+            // Decodificar y validar token
             var decodedJWT = jwtDecoder.decode(tokenOpt.get());
 
-            // 4️⃣ Convertir claims del token a un principal personalizado
+            // 4Convertir claims del token a un principal personalizado
             var principal = jwtToPrincipalConverter.convert(decodedJWT);
 
-            // 5️⃣ Crear objeto de autenticación y asignarlo al contexto de seguridad
+            //  Crear objeto de autenticación y asignarlo al contexto de seguridad
             var authentication = new UserPrincipalAuthenticationToken(principal);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (Exception e) {
-            // ⚠️ Si el token es inválido, no lanza error pero continúa sin autenticación
-            System.out.println("⚠️ Token inválido o error en autenticación: " + e.getMessage());
+            //  Si el token es inválido, no lanza error pero continúa sin autenticación
+            System.out.println(" Token inválido o error en autenticación: " + e.getMessage());
         }
 
-        // 6️⃣ Continuar con el resto de filtros (sea válido o no el token)
+        //  Continuar con el resto de filtros (sea válido o no el token)
         filterChain.doFilter(request, response);
     }
     /**

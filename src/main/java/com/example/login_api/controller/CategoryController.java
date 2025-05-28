@@ -37,7 +37,6 @@ public class CategoryController {
 
 
     //  Primero el endpoint literal
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/with-products")
     public List<CategoryWithProducts> getCategoriesWithProducts() {
         return categoryService.categoryWithProducts();

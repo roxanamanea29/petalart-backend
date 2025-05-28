@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -19,6 +20,11 @@ import java.util.List;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+/*
+* clase de configuracion de la seguridad
+*
+*
+* */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -34,17 +40,18 @@ public class WebSecurityConfig {
         //  Agregamos CORS correctamente para frontend desde React (5173)
         http.cors(cors -> cors.configurationSource(request -> {
             CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedOrigins(List.of("http://localhost:5173")); // ✅ Solo React
-            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // ✅ Permitir REST
-            config.setAllowedHeaders(List.of("*")); // ✅ Permitir headers comunes como Authorization, Content-Type
-            config.setAllowCredentials(true); // ✅ Permitir cookies y tokens
+            config.setAllowedOrigins(List.of("http://localhost:5173")); // Solo React
+            config.setAllowedOrigins(List.of("https://petalart-frontend.onrender.com")); // Solo React
+            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); //  Permitir REST
+            config.setAllowedHeaders(List.of("*")); // Permitir headers comunes como Authorization, Content-Type
+            config.setAllowCredentials(true); // Permitir cookies y tokens
             return config;
         }));
 
         //  Desactivamos CSRF (porque se usa JWT)
-        http.csrf(csrf -> csrf.disable());
+        http.csrf(AbstractHttpConfigurer::disable);
 
-        //  Seguridad por rutas
+        //  Seguridad porrutas
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST,   "/categories/**").hasRole("ADMIN")
@@ -73,6 +80,7 @@ public class WebSecurityConfig {
                                 .requestMatchers("/admin/payments/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
+                //configuración d
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(withDefaults());
 
@@ -82,13 +90,16 @@ public class WebSecurityConfig {
         return http.build();
     }
 
+//aqui es configura el manager de autenticacion
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        //se utiliza el AuthenticationManagerBuilder para configurar el servicio de los detalles del usuario y el codificador de contraseñas PasswordEncoder
         AuthenticationManagerBuilder authenticationManagerBuilder =
                 http.getSharedObject(AuthenticationManagerBuilder.class);
         authenticationManagerBuilder
                 .userDetailsService(customUserDetailService)
                 .passwordEncoder(passwordEncoder);  // Se pasa directamente el bean PasswordEncoder
+        //devuelve el autenticationManager configurado
         return authenticationManagerBuilder.build();
     }
 }

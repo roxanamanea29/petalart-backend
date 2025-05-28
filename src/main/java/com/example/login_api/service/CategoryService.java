@@ -5,13 +5,9 @@ import com.example.login_api.dto.CategoryResponse;
 import com.example.login_api.dto.CategoryWithProducts;
 import com.example.login_api.dto.ProductSummary;
 import com.example.login_api.entity.Category;
-import com.example.login_api.entity.Product;
 import com.example.login_api.repository.ICategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,12 +18,15 @@ public class CategoryService {
     //  Inyección del repositorio de categorías
     private final ICategoryRepository categoryRepository;
 
-    //  Listar todas las categorías en formato DTO
-    public List<CategoryResponse> findAll() { //busca todas las categorías en la base de datos
+    //busca todas las categorías en la base de datos
+    public List<CategoryResponse> findAll() {
+        // obtiene todas las categorías de la base de datos
         return categoryRepository.findAll()
-                .stream()//las transforma en en un flujo de datos para recorrerlas una por una
-                .map(this::mapToCategoryResponse)//transforma cada categoria en un categoryResponse
-                .collect(Collectors.toList());//las pone en una lista
+                // convierte cada categoría a categoryResponse
+                .stream()
+                .map(this::mapToCategoryResponse)
+                //las pone en uan lista
+                .collect(Collectors.toList());
     }
 
     // Crear nueva categoría desde DTO

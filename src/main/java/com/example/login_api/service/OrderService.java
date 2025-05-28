@@ -16,9 +16,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/*
+* clase de servicio que maneja la lógica de negocio de los pedidos
+* se encarga de crear, obtener, actualizar y eliminar pedidos
+* */
+
+// se usa la anotación @Service para indicar que es un servicio de Spring y se usa Lombok para generar el constructor con los repositorios inyectados
 @Service
 @RequiredArgsConstructor
 public class OrderService {
+
     //se inyectan los repositorios necesarios para el servicio
     private final IOrderRepository orderRepository;
     private final ICartRepository cartRepository;
@@ -26,14 +33,21 @@ public class OrderService {
     private final IOrderItemRepository orderItemRepository;
     private final IAddressRepository addressRepository;
 
+
+    //método para obtener todos los pedidos
     public List<OrderResponse> getAllOrders() {
+        //se obtiene la lista de pedidos de la base de datos
         List<Order> orders = orderRepository.findAll();
+        //se mapea cada pedido a un OrderResponse y se añade en una lista
         return orders.stream()
+                //mapea cada Order al metodo un toOrderResponse
                 .map(this::mapToOrderResponseDTO)
+                //recolecta los OrderResponse en una lista
                 .collect(Collectors.toList());
     }
 
 
+    //método para crear un pedido
     public OrderResponse createOrder(Long userId, OrderRequest orderRequest) {
 
         //validar el usuario -> primero se busca el usuario o lanza una excepcion si no existe
@@ -159,28 +173,35 @@ public class OrderService {
 
     //mapea un OrderItem a un OrderItemResponse
     private OrderItemResponse mapToOrderItemResponse(OrderItem item) {
+        // se crea un nuevo OrderItemResponse para devolver los datos del item del pedido
         OrderItemResponse dto = new OrderItemResponse();
         dto.setOrderItemId(item.getOrderItemId());
         dto.setProductName(item.getProduct().getProductName());
         dto.setImageUrl(item.getProduct().getProductImage());
         dto.setQuantity(item.getQuantity());
         dto.setPrice(item.getPrice());
+        // se devuelve el OrderItemResponse con los datos del item del pedido
         return dto;
     }
 
+    //método para eliminar un pedido
     public void deleteOrder(Long orderId) {
+    // se busca el pedido por id, si no existe lanza una excepción
         Order order = orderRepository.findById(orderId)
+            // si no lo encuentra lanza una excepción
                 .orElseThrow(() -> new RuntimeException("Pedido no encontrado :("));
+    //verifica que el pedido no tengo campos vacios
             if (order.getOrderStatus() == null ||
                 order.getPaymentStatus() == null ||
                 order.getPaymentMethod() == null ||
                 order.getShippingMethod() == null
         ) {throw new RuntimeException("No se puede eliminar una orden incompleto (campos nulos)");}
-
+//verifica que el pedido no esta en estos estsdos si lo estan
     if(order.getOrderStatus() == OrderStatus.PAID ||
             order.getOrderStatus() == OrderStatus.DELIVERED) {
             throw new RuntimeException("No se puede eliminar un pedido que no está pendiente");
         }
+    //si el pedido no tiene campos nulos y no esta en estos estado se elimna
         orderRepository.delete(order);
     }
 }

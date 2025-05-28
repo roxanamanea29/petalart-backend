@@ -10,10 +10,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
-
+/**
+ * Clase que implementa UserDetails para representar al usuario autenticado en Spring Security.
+ * Contiene información del usuario como ID, email, nombre, apellidos y roles.
+ * También proporciona métodos necesarios para la autenticación y autorización.
+ */
 @Getter
 @Builder
 public class UserPrincipal implements UserDetails {//UserDetails es una interfaz de Spring Security que representa los detalles del usuario autenticados
+    // Atributos del usuario autenticado
     private final Long userId;
 
     private final String email;
@@ -25,11 +30,14 @@ public class UserPrincipal implements UserDetails {//UserDetails es una interfaz
 
     private final String lastName;
 
+    //los roles del usuario que se asignan como autoridades
     private  final Collection<? extends GrantedAuthority> authorities;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
     }
+
+
     @Override
     public String getPassword() {
         return password;
@@ -61,7 +69,7 @@ public class UserPrincipal implements UserDetails {//UserDetails es una interfaz
     }
 
 
-
+//metodo que convierte el UserPrincipal a una entidad UserEntity
     public UserEntity getUser() {
         UserEntity user = new UserEntity();
         user.setId(this.userId);
