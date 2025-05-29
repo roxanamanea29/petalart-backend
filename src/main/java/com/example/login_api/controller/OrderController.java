@@ -50,10 +50,11 @@ public class OrderController {
     }
 
      // create order
-    @PostMapping("/create/{userId}")
+    @PostMapping("/create")
      public ResponseEntity<OrderResponse> createOrder(
-            @PathVariable Long userId,
-            @RequestBody OrderRequest request) {
+            @RequestBody OrderRequest request,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        Long userId = userPrincipal.getUserId();
          OrderResponse order = orderService.createOrder(userId, request);
          return ResponseEntity.ok(order);
      }
