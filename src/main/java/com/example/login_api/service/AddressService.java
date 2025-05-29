@@ -49,11 +49,11 @@ public class AddressService {
 
     //guarda la direccion del usuario
     public AddressResponse saveAddress(AddressRequest request, Long userId) {
-        // Validar el usuario sino lanza una excepcion
+        // Validar el usuario sino lanza una excepciont
         UserEntity  user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
     //busca por si existe direccion con los mismos datos
-        Optional<Address> existingAddress = addressRepository.findByUserAndStreetAndStreetNumberAndCityAndZipCodeAndCountry(
+        List<Address> existingAddress = addressRepository.findByUserAndStreetAndStreetNumberAndCityAndZipCodeAndCountry(
                 user,
                 request.getStreet(),
                 request.getStreetNumber(),
@@ -64,9 +64,9 @@ public class AddressService {
         //crea una direción nuevo o modifica la existente
         Address addressEntity;
         // busca si la dirección ya existe para el usuario
-        if (existingAddress.isPresent()) {
+        if (existingAddress.size() > 0) {
             // si existe, se actualiza la dirección
-            addressEntity = existingAddress.get();
+            addressEntity = existingAddress.get(0);
             addressEntity.setAddressType(request.getAddressType());
         } else {
             //si no existe se añade una nueva dirección
