@@ -65,23 +65,11 @@ public class OrderController {
              @RequestBody OrderRequest request,
              @AuthenticationPrincipal UserPrincipal userPrincipal) {
          try {
-             long userId = userPrincipal.getUserId();
-
-             // 🔍 LOGS PARA DEPURACIÓN
-             log.info("📥 Pedido recibido de usuario ID={}", userId);
-             log.info("📦 Direcciones: {}", request.getAddressIds());
-             log.info("🛒 Items: {}", request.getItems());
-             log.info("💰 Total: {}", request.getTotal());
-             log.info("💳 Método de pago: {}", request.getPaymentMethod());
-             log.info("🏠 Tipo de dirección: {}", request.getAddressType());
-             log.info("🚚 Método de envío: {}", request.getShippingMethod());
-             log.info("📄 Estado del pago: {}", request.getPaymentStatus());
-
+             long userId = userPrincipal.getUserId(); // ✅ sin boxing
              OrderResponse order = orderService.createOrder(userId, request);
              return ResponseEntity.ok(order);
-
          } catch (Exception e) {
-             log.error("❌ Error al crear el pedido", e);
+             log.error("Error al crear el pedido", e); // ✅ logging limpio y elegante
              return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                      .body(Map.of(
                              "error", e.getMessage(),
