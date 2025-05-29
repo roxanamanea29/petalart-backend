@@ -51,7 +51,7 @@ public class AddressService {
     public AddressResponse saveAddress(AddressRequest request, Long userId) {
         // Validar el usuario sino lanza una excepcion
         UserEntity  user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with ID: " + request.getUserId()));
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
     //busca por si existe direccion con los mismos datos
         Optional<Address> existingAddress = addressRepository.findByUserAndStreetAndStreetNumberAndCityAndZipCodeAndCountry(
                 user,
@@ -67,7 +67,7 @@ public class AddressService {
         if (existingAddress.isPresent()) {
             // si existe, se actualiza la dirección
             addressEntity = existingAddress.get();
-            addressEntity.setAddressType(AddressType.valueOf(request.getAddressType()));
+            addressEntity.setAddressType(request.getAddressType());
         } else {
             //si no existe se añade una nueva dirección
             addressEntity = new Address();
@@ -78,7 +78,7 @@ public class AddressService {
             addressEntity.setState(request.getState());
             addressEntity.setCountry(request.getCountry());
             addressEntity.setZipCode(request.getZipCode());
-            addressEntity.setAddressType(AddressType.valueOf(request.getAddressType()));
+            addressEntity.setAddressType(request.getAddressType());
         }
         // Save the address entity to the database
         Address savedAddress = addressRepository.save(addressEntity);
@@ -103,7 +103,7 @@ public class AddressService {
         addressEntity.setState(request.getState());
         addressEntity.setCountry(request.getCountry());
         addressEntity.setZipCode(request.getZipCode());
-        addressEntity.setAddressType(AddressType.valueOf(request.getAddressType()));
+        addressEntity.setAddressType(request.getAddressType());
 
         // Save the updated address entity to the database
         Address updatedAddress = addressRepository.save(addressEntity);
@@ -122,7 +122,7 @@ public class AddressService {
         addressRepository.delete(addressEntity);
     }
 
-    //metodo para transformar lso datos de la direcion en una respuesta
+    //metodo para mapear la direcion e
     public AddressResponse mapToAddressResponse(Address address) {
         AddressResponse response = new AddressResponse();
         response.setId(address.getId());

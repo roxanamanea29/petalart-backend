@@ -56,14 +56,11 @@ public class AddressController {
 
     // metodo para eliminar una direccion
     @DeleteMapping("/delete/{addressId}")
-    public void  deleteAddress( @PathVariable Long addressId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        Long userId = Long.valueOf(userPrincipal.getUserId());
-        Address address = addressRepository.findById(addressId)
-                .orElseThrow(() -> new RuntimeException("Dirección no encontradoa con este ID " + addressId));
-        if (!address.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Esta dirección no pertenece al usuario con el ID: " + userId);
-        }
-        addressRepository.deleteById(addressId);
-    }
+    public ResponseEntity<String>  deleteAddress(@PathVariable Long addressId,
+                                                 @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        Long userId = userPrincipal.getUserId();
+        addressService.deleteAddress(addressId, userId);
+        return ResponseEntity.ok("Address deleted successfully");
 
+    }
 }
