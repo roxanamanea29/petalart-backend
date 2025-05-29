@@ -13,7 +13,8 @@ import java.util.List;
 
 @Data
 public class OrderRequest {
-    private List<AddressRequest> addresses;
+
+    private List<Long> addressIds;
 
     private List<OrderItemRequest> items;
     private BigDecimal total;

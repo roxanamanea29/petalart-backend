@@ -71,25 +71,15 @@ public class OrderService {
         order.setShippingMethod(orderRequest.getShippingMethod());//se asigna el método de envíoaho
 
         //se asignan las direcciones del pedido
-        List<OrderAddress> orderAddresses = orderRequest.getAddresses().stream().map(addressRequest -> {
-            Address address = new Address();
-            address.setStreet(addressRequest.getStreet());
-            address.setStreetNumber(addressRequest.getStreetNumber());
-            address.setCity(addressRequest.getCity());
-            address.setState(addressRequest.getState());
-            address.setCountry(addressRequest.getCountry());
-            address.setZipCode(addressRequest.getZipCode());
-            address.setAddressType(addressRequest.getAddressType());
-            address.setUser(user); // se asigna el usuario a la dirección
-            addressRepository.save(address); // se guarda la dirección en la base de datos
+        List<Address> addresses = addressRepository.findAllById(orderRequest.getAddressIds());
 
+        List<OrderAddress> orderAddresses = addresses.stream().map(address -> {
             OrderAddress orderAddress = new OrderAddress();
-            orderAddress.setAddress(address); // se asigna la dirección al pedido
-            orderAddress.setAddressType(addressRequest.getAddressType()); // se asigna el tipo de dirección
-            orderAddress.setOrder(order); // se asigna el pedido a la dirección
-            return orderAddress; // se devuelve el OrderAddress con la dirección y el tipo de dirección
-
-        }).collect(Collectors.toList());//recolecta las direcciones en una lista de tipo List<OrderAddress>
+            orderAddress.setAddress(address);
+            orderAddress.setAddressType(orderRequest.getAddressType()); // del request
+            orderAddress.setOrder(order);
+            return orderAddress;
+        }).collect(Collectors.toList());
 
         order.setOrderAddresses(orderAddresses);
 
