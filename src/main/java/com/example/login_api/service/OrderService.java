@@ -79,6 +79,7 @@ public class OrderService {
             address.setState(addressRequest.getState());
             address.setCountry(addressRequest.getCountry());
             address.setZipCode(addressRequest.getZipCode());
+            address.setAddressType(addressRequest.getAddressType());
             address.setUser(user); // se asigna el usuario a la dirección
             addressRepository.save(address); // se guarda la dirección en la base de datos
 
