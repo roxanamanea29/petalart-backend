@@ -70,9 +70,14 @@ public class OrderService {
         order.setPaymentMethod(orderRequest.getPaymentMethod());//se asigna el método de pago
         order.setShippingMethod(orderRequest.getShippingMethod());//se asigna el método de envíoaho
 
+        if (orderRequest.getAddressIds() == null || orderRequest.getAddressIds().isEmpty()) {
+            throw new RuntimeException("Debes proporcionar al menos una dirección para el pedido");
+        }
+        if (orderRequest.getAddressType() == null) {
+            throw new RuntimeException("Tipo de dirección no especificado");
+        }
         //se asignan las direcciones del pedido
         List<Address> addresses = addressRepository.findAllById(orderRequest.getAddressIds());
-
         List<OrderAddress> orderAddresses = addresses.stream().map(address -> {
             OrderAddress orderAddress = new OrderAddress();
             orderAddress.setAddress(address);
