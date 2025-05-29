@@ -71,15 +71,25 @@ public class OrderService {
         order.setShippingMethod(orderRequest.getShippingMethod());//se asigna el método de envíoaho
 
         //se asignan las direcciones del pedido
-        List<OrderAddress> orderAddresses = addressRepository.findAllById(orderRequest.getAddressIds())
-                .stream()
-                .map(address -> {
-                    OrderAddress orderAddress = new OrderAddress();
-                    orderAddress.setOrder(order);
-                    orderAddress.setAddress(address);
-                    orderAddress.setAddressType(orderRequest.getAddressType());//se asigna el tipo de dirección
-                    return orderAddress;
-                }).collect(Collectors.toList());
+        List<OrderAddress> orderAddresses = orderRequest.getAddresses().stream().map(addressRequest -> {
+            Address address = new Address();
+            address.setStreet(addressRequest.getStreet());
+            address.setStreetNumber(addressRequest.getStreetNumber());
+            address.setCity(addressRequest.getCity());
+            address.setState(addressRequest.getState());
+            address.setCountry(addressRequest.getCountry());
+            address.setZipCode(addressRequest.getZipCode());
+            address.setUser(user); // se asigna el usuario a la dirección
+            addressRepository.save(address); // se guarda la dirección en la base de datos
+
+            OrderAddress orderAddress = new OrderAddress();
+            orderAddress.setAddress(address); // se asigna la dirección al pedido
+            orderAddress.setAddressType(addressRequest.getAddressType()); // se asigna el tipo de dirección
+            orderAddress.setOrder(order); // se asigna el pedido a la dirección
+            return orderAddress; // se devuelve el OrderAddress con la dirección y el tipo de dirección
+
+        }).collect(Collectors.toList());//recolecta las direcciones en una lista de tipo List<OrderAddress>
+
         order.setOrderAddresses(orderAddresses);
 
         //convertir el carrito a pedido

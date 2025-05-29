@@ -24,29 +24,8 @@ public class PaymentController {
     private final IUserRepository userRepository;
 
 
-    // Implementación de métodos para manejar pagos
-    // crear un nuevo pago
-  /*  @PostMapping("/create")
-    public ResponseEntity<PaymentResponse> createPayment( PaymentRequest paymentRequest, UserEntity userEntity, Principal principal) {
-        // Obtener el id del usuario autenticado
-        UserEntity user = userRepository.findByEmail(principal.getName())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        Payment createdPayment = paymentService.createPayment(paymentRequest);
-        // Crear respuesta de pago
-       PaymentResponse paymentResponse = new PaymentResponse();
-        paymentResponse.setId(createdPayment.getId());
-        paymentResponse.setTransactionId(createdPayment.getTransactionId());
-        paymentResponse.setOrderId(createdPayment.getOrderId());
-        paymentResponse.setTotalAmount(createdPayment.getTotalAmount());
-        paymentResponse.setPaymentMethod(createdPayment.getPaymentMethod());
-        paymentResponse.setPaymentStatus(createdPayment.getPaymentStatus());
-        paymentResponse.setCreatedAt(createdPayment.getCreatedAt());
-        paymentResponse.setUpdatedAt(createdPayment.getUpdatedAt());
-
-        return ResponseEntity.ok(paymentResponse);
-    }*/
-
+  // Crear un nuevo pago
     @PostMapping("/create")
     public ResponseEntity<PaymentResponse> createPayment(@RequestBody PaymentRequest paymentRequest, Principal principal) {
         UserEntity userEntity = userRepository.findByEmail(principal.getName())

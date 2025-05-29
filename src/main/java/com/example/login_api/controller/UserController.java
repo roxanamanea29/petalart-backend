@@ -58,6 +58,9 @@ public class UserController {
           return ResponseEntity.ok(response);
 
     }
+
+    //actualizar perfil del usuario
+
     @PutMapping("/profile")
     public ResponseEntity<UserEntity> updateProfile(@AuthenticationPrincipal UserPrincipal principal,
                                                     @RequestBody UpdateProfileRequest req) {
