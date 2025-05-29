@@ -5,6 +5,7 @@ import com.example.login_api.dto.OrderResponse;
 import com.example.login_api.security.UserPrincipal;
 import com.example.login_api.service.OrderService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,6 +17,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/order")
 @AllArgsConstructor
+@Slf4j
 public class OrderController {
 
 
@@ -50,15 +52,31 @@ public class OrderController {
     }
 
      // create order
-    @PostMapping("/create")
+   /* @PostMapping("/create")
      public ResponseEntity<OrderResponse> createOrder(
             @RequestBody OrderRequest request,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         Long userId = userPrincipal.getUserId();
          OrderResponse order = orderService.createOrder(userId, request);
          return ResponseEntity.ok(order);
+     }*/
+     @PostMapping("/create")
+     public ResponseEntity<?> createOrder(
+             @RequestBody OrderRequest request,
+             @AuthenticationPrincipal UserPrincipal userPrincipal) {
+         try {
+             long userId = userPrincipal.getUserId(); // ✅ sin boxing
+             OrderResponse order = orderService.createOrder(userId, request);
+             return ResponseEntity.ok(order);
+         } catch (Exception e) {
+             log.error("Error al crear el pedido", e); // ✅ logging limpio y elegante
+             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                     .body(Map.of(
+                             "error", e.getMessage(),
+                             "exception", e.getClass().getSimpleName()
+                     ));
+         }
      }
-
         //delete order
 
      @DeleteMapping("/{orderId}")
