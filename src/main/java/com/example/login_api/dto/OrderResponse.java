@@ -15,6 +15,7 @@ import java.util.List;
 public class OrderResponse {
     private Long id;
     private Long userId;
+    private String userEmail;
     private LocalDateTime date;
     private BigDecimal total;
     private List<OrderItemResponse> items;
