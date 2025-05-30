@@ -51,7 +51,7 @@ public class OrderController {
         return ResponseEntity.ok(order);
     }
 
-     // create order
+    // create order
    /* @PostMapping("/create")
      public ResponseEntity<OrderResponse> createOrder(
             @RequestBody OrderRequest request,
@@ -60,32 +60,38 @@ public class OrderController {
          OrderResponse order = orderService.createOrder(userId, request);
          return ResponseEntity.ok(order);
      }*/
-     @PostMapping("/create")
-     public ResponseEntity<?> createOrder(
-             @RequestBody OrderRequest request,
-             @AuthenticationPrincipal UserPrincipal userPrincipal) {
-         try {
-             long userId = userPrincipal.getUserId(); // ✅ sin boxing
-             OrderResponse order = orderService.createOrder(userId, request);
-             return ResponseEntity.ok(order);
-         } catch (Exception e) {
-             log.error("Error al crear el pedido", e); // ✅ logging limpio y elegante
-             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                     .body(Map.of(
-                             "error", e.getMessage(),
-                             "exception", e.getClass().getSimpleName()
-                     ));
-         }
-     }
-        //delete order
+    @PostMapping("/create")
+    public ResponseEntity<?> createOrder(
+            @RequestBody OrderRequest request,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        try {
+            long userId = userPrincipal.getUserId(); // ✅ sin boxing
+            OrderResponse order = orderService.createOrder(userId, request);
+            return ResponseEntity.ok(order);
+        } catch (Exception e) {
+            log.error("Error al crear el pedido", e); // ✅ logging limpio y elegante
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "error", e.getMessage(),
+                            "exception", e.getClass().getSimpleName()
+                    ));
+        }
+    }
+    //delete order
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<String> deleteOrder(@PathVariable Long orderId) {
+        try {
+            orderService.deleteOrder(orderId);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message ",e.getMessage()).toString());
+        }
+    }
 
-     @DeleteMapping("/{orderId}")
-        public ResponseEntity<String> deleteOrder(@PathVariable Long orderId) {
-         try {
-             orderService.deleteOrder(orderId);
-             return ResponseEntity.noContent().build();
-         } catch (RuntimeException e) {
-             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message ",e.getMessage()).toString());
-         }
-     }
+    // update order status
+    @PostMapping("/{orderId}/confirm-payment")
+    public ResponseEntity<OrderResponse> confirmPayment(@PathVariable Long orderId) {
+      OrderResponse updated = orderService.confirmPayment(orderId);
+        return ResponseEntity.ok(updated);
+    }
 }

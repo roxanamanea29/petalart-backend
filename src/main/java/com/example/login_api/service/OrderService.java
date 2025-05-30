@@ -51,7 +51,7 @@ public class OrderService {
         // se crea el pedido
         Order order = new Order();
         order.setUser(user);
-        order.setOrderStatus(OrderStatus.PAID);
+        order.setOrderStatus(OrderStatus.PENDING_PAYMENT);
         order.setPaymentStatus(PaymentStatus.PENDING);
         order.setDate(LocalDateTime.now());
         order.setPaymentMethod(orderRequest.getPaymentMethod());
@@ -95,6 +95,19 @@ public class OrderService {
         });
         return mapToOrderResponseDTO(order);
     }
+
+    public OrderResponse confirmPayment(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado :("));
+        if (order.getOrderStatus() != OrderStatus.PENDING_PAYMENT) {
+            throw new RuntimeException("El pedido no está pendiente de pago");
+        }
+        order.setOrderStatus(OrderStatus.PAID);
+        order.setPaymentStatus(PaymentStatus.COMPLETED);
+        orderRepository.save(order);
+         return mapToOrderResponseDTO(order);
+    }
+
 
     private OrderResponse mapToOrderResponseDTO(Order order) {
         OrderResponse dto = new OrderResponse();
