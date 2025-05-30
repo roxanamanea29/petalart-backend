@@ -112,7 +112,6 @@ public class OrderService {
     private OrderResponse mapToOrderResponseDTO(Order order) {
         OrderResponse dto = new OrderResponse();
         dto.setId(order.getId());
-        dto.setUserEmail(order.getUser().getEmail());
         dto.setDate(order.getDate());
         dto.setTotal(order.getTotal());
         dto.setUserId(order.getUser().getId());
