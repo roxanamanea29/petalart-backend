@@ -23,6 +23,7 @@ public class OrderService {
     private final IOrderItemRepository orderItemRepository;
     private final IAddressRepository addressRepository;
     private final IProductRepository productRepository;
+    private final EmailService emailService;
 
     public List<OrderResponse> getAllOrders() {
         return orderRepository.findAll().stream()
@@ -32,20 +33,23 @@ public class OrderService {
 
     public OrderResponse createOrder(Long userId, OrderRequest orderRequest) {
 
+        // Verifica que el usuario exista
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado :("));
 
+        // Verifica que el carrito del usuario tenga productos
         if (orderRequest.getItems() == null || orderRequest.getItems().isEmpty()) {
             throw new RuntimeException("No se enviaron productos para el pedido");
         }
-
+        // Verifica que se hayan proporcionado direcciones y tipo de dirección
         if (orderRequest.getAddressIds() == null || orderRequest.getAddressIds().isEmpty()) {
             throw new RuntimeException("Debes proporcionar al menos una dirección para el pedido");
         }
+        // Verifica que se haya especificado el tipo de dirección
         if (orderRequest.getAddressType() == null) {
             throw new RuntimeException("Tipo de dirección no especificado");
         }
-
+        // se crea el pedido
         Order order = new Order();
         order.setUser(user);
         order.setOrderStatus(OrderStatus.PAID);
@@ -53,6 +57,7 @@ public class OrderService {
         order.setDate(LocalDateTime.now());
         order.setPaymentMethod(orderRequest.getPaymentMethod());
         order.setShippingMethod(orderRequest.getShippingMethod());
+
 
         List<Address> addresses = addressRepository.findAllById(orderRequest.getAddressIds());
         List<OrderAddress> orderAddresses = addresses.stream().map(address -> {
@@ -89,7 +94,8 @@ public class OrderService {
             cart.getItems().clear();
             cartRepository.save(cart);
         });
-
+        // envía el correo de confirmación
+        emailService.sendOrderConfirmation(user, order);
         return mapToOrderResponseDTO(order);
     }
 
