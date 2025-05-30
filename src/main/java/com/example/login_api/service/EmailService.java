@@ -18,7 +18,7 @@ public class EmailService {
 
     private final SendGrid sendGridClient;
 
-    @Value("${app.frontend.url}")
+    @Value("${APP_FRONTEND_URL:https://petalart-frontend.onrender.com}")
     private String frontendUrl;
 
     public void sendOrderConfirmation(UserEntity user, Order order) {
