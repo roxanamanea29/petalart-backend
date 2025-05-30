@@ -23,7 +23,7 @@ public class ProductService {
 
     // Add methods to interact with the product repository as needed
    public List<ProductResponse> findAll(){
-         return productRepository.findAll()
+         return productRepository.findAllWithCategory()
                  .stream()
                  .map(this::mapToProductResponse)
                  .collect(Collectors.toList());
