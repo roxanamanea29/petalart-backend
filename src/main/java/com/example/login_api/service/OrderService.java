@@ -23,7 +23,6 @@ public class OrderService {
     private final IOrderItemRepository orderItemRepository;
     private final IAddressRepository addressRepository;
     private final IProductRepository productRepository;
-    private final EmailService emailService;
 
     public List<OrderResponse> getAllOrders() {
         return orderRepository.findAll().stream()
@@ -94,8 +93,6 @@ public class OrderService {
             cart.getItems().clear();
             cartRepository.save(cart);
         });
-        // envía el correo de confirmación
-        emailService.sendOrderConfirmation(user, order);
         return mapToOrderResponseDTO(order);
     }
 
