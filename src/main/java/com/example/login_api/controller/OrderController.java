@@ -40,7 +40,7 @@ public class OrderController {
     // Usuario autenticado
     @GetMapping("/my-orders")
     public ResponseEntity<List<OrderResponse>> getMyOrders(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        Long userId = userPrincipal.getUserId();
+        Long userId =Long.valueOf(userPrincipal.getUserId());
         List<OrderResponse> orders = orderService.getOrdersByUserId(userId);
         return ResponseEntity.ok(orders);
     }
