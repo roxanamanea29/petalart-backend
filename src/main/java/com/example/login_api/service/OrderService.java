@@ -3,6 +3,7 @@ package com.example.login_api.service;
 import com.example.login_api.dto.*;
 import com.example.login_api.entity.*;
 import com.example.login_api.enums.OrderStatus;
+import com.example.login_api.enums.PaymentMethod;
 import com.example.login_api.enums.PaymentStatus;
 import com.example.login_api.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -51,12 +52,17 @@ public class OrderService {
         // se crea el pedido
         Order order = new Order();
         order.setUser(user);
-        order.setOrderStatus(OrderStatus.PENDING_PAYMENT);
-        order.setPaymentStatus(PaymentStatus.PENDING);
         order.setDate(LocalDateTime.now());
         order.setPaymentMethod(orderRequest.getPaymentMethod());
         order.setShippingMethod(orderRequest.getShippingMethod());
 
+        if(orderRequest.getPaymentMethod() == PaymentMethod.CASH_ON_DELIVERY){
+            order.setOrderStatus(OrderStatus.PENDING_PAYMENT);
+            order.setPaymentStatus(PaymentStatus.PENDING);
+        } else {
+            order.setOrderStatus(OrderStatus.PAID);
+            order.setPaymentStatus(PaymentStatus.COMPLETED);
+        }
 
         List<Address> addresses = addressRepository.findAllById(orderRequest.getAddressIds());
         List<OrderAddress> orderAddresses = addresses.stream().map(address -> {

@@ -40,7 +40,7 @@ public class OrderController {
     // Usuario autenticado
     @GetMapping("/my-orders")
     public ResponseEntity<List<OrderResponse>> getMyOrders(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        Long userId = Long.valueOf(userPrincipal.getUserId());
+        Long userId = userPrincipal.getUserId();
         List<OrderResponse> orders = orderService.getOrdersByUserId(userId);
         return ResponseEntity.ok(orders);
     }
@@ -50,16 +50,6 @@ public class OrderController {
         OrderResponse order = orderService.getOrderById(orderId);
         return ResponseEntity.ok(order);
     }
-
-    // create order
-   /* @PostMapping("/create")
-     public ResponseEntity<OrderResponse> createOrder(
-            @RequestBody OrderRequest request,
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        Long userId = userPrincipal.getUserId();
-         OrderResponse order = orderService.createOrder(userId, request);
-         return ResponseEntity.ok(order);
-     }*/
     @PostMapping("/create")
     public ResponseEntity<?> createOrder(
             @RequestBody OrderRequest request,
