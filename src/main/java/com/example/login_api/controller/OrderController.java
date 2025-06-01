@@ -55,11 +55,11 @@ public class OrderController {
             @RequestBody OrderRequest request,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         try {
-            long userId = userPrincipal.getUserId(); // ✅ sin boxing
+            long userId = userPrincipal.getUserId();
             OrderResponse order = orderService.createOrder(userId, request);
             return ResponseEntity.ok(order);
         } catch (Exception e) {
-            log.error("Error al crear el pedido", e); // ✅ logging limpio y elegante
+            log.error("Error al crear el pedido", e); // logging limpio y elegante
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of(
                             "error", e.getMessage(),
@@ -79,9 +79,38 @@ public class OrderController {
     }
 
     // update order status
-    @PostMapping("/{orderId}/confirm-payment")
+  /*  @PostMapping("/{orderId}/confirm-payment")
     public ResponseEntity<OrderResponse> confirmPayment(@PathVariable Long orderId) {
       OrderResponse updated = orderService.confirmPayment(orderId);
         return ResponseEntity.ok(updated);
+    }*/
+    // Dentro de OrderController.java
+    @PostMapping("/{orderId}/confirm-payment")
+    public ResponseEntity<?> confirmPayment(@PathVariable Long orderId,
+                                            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        try {
+            // (Opcional) Verificar que el usuario logueado es propietario del pedido
+            // orderService.validarPropietarioDePedido(userPrincipal.getUserId(), orderId);
+
+            OrderResponse updated = orderService.confirmPayment(orderId);
+            return ResponseEntity.ok(updated);
+
+        } catch (RuntimeException e) {
+            // Si el mensaje contiene “pendiente de pago”, devolvemos 400 Bad Request:
+            if (e.getMessage().contains("pendiente de pago")) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of(
+                                "error", "No se pudo confirmar el pago",
+                                "detail", e.getMessage()
+                        ));
+            }
+            // Para otros errores internos devolvemos 500:
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "error", "Ocurrió un error al confirmar el pago",
+                            "exception", e.getClass().getSimpleName(),
+                            "detail", e.getMessage()
+                    ));
+        }
     }
 }
