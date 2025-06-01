@@ -109,6 +109,30 @@ public class CartService {
     }
 
     /**
+     * 3.1) Elimina un producto del carrito.
+     *     - Anotado @Transactional para que se ejecute en la misma transacción.
+     *     - Si el CartItem no existe, lanza una excepción.
+     **/
+
+    @Transactional
+    public CartResponse removeProductFromCart(Long userId, Long productId) {
+        Cart cart = getCartByUserId(userId);
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado."));
+
+        CartItem item = cartItemRepository.findByCartAndProduct(cart, product)
+                .orElseThrow(() -> new RuntimeException("El producto no está en el carrito."));
+
+        // Elimina el CartItem y actualiza el carrito
+        cartItemRepository.delete(item);
+        cart.getItems().removeIf(i -> i.getProduct().getProductId().equals(productId));
+
+        // Recalcula el total y persiste
+        Cart cartActualizado = updateCartTotal(cart);
+        return convertToCartResponse(cartActualizado);
+    }
+    /**
      * 4) Vacía un carrito completo (elimina todos los CartItem y reinicia totales en 0).
      *    - Anotado @Transactional.
      */

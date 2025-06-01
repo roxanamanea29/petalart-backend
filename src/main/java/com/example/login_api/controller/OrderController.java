@@ -67,14 +67,17 @@ public class OrderController {
                     ));
         }
     }
+
     //delete order
     @DeleteMapping("/{orderId}")
-    public ResponseEntity<String> deleteOrder(@PathVariable Long orderId) {
+    public ResponseEntity<?> deleteOrder(@PathVariable Long orderId) {
         try {
             orderService.deleteOrder(orderId);
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message ",e.getMessage()).toString());
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message",e.getMessage()).toString());
         }
     }
 
@@ -84,5 +87,4 @@ public class OrderController {
       OrderResponse updated = orderService.confirmPayment(orderId);
         return ResponseEntity.ok(updated);
     }
-
 }

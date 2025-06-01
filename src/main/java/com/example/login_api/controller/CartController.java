@@ -32,12 +32,6 @@ public class CartController {
         return ResponseEntity.ok(cartService.getCartResponseByEmail(email));
     }
 
-    //
-   /* @GetMapping("my-cart")
-    public ResponseEntity<CartResponse> getCart() {
-        return ResponseEntity.ok(cartService.getCartResponseByUserId(1L));
-    }*/
-
     // add product to cart
     @PostMapping("/add")
     public CartResponse addProductToCart(
@@ -58,22 +52,15 @@ public class CartController {
     }*/
     // remove product from cart para recuperar el carrito despues de eliminar un producto
 
-    @DeleteMapping("/remove/{userId}/{productId}")
+    @DeleteMapping("/remove/{productId}")
     public ResponseEntity <CartResponse> removeProductFromCart(
-            @PathVariable Long userId,
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
             @PathVariable Long productId) {
-        CartResponse updatedCart = cartService.getCartResponseByUserId(userId);
+        Long userId = userPrincipal.getUserId();
+        CartResponse updatedCart = cartService.removeProductFromCart(userId, productId);
         return ResponseEntity.ok(updatedCart);
     }
-    // update product quantity old
- /*   @PutMapping("/update")
-    public CartResponse updateQuantity(@RequestBody AddProductRequest request) {
-        return cartService.updateProductQuantity(
-                request.getUserId(),
-                request.getProductId(),
-                request.getQuantity()
-        );
-    }*/
+
     // update product quantity utilizando el principal para descarter malas inyecciones
     @PutMapping("/update")
     public CartResponse updateQuantity(@RequestBody UpdateQuantityRequest request, Principal principal) {
@@ -90,8 +77,12 @@ public class CartController {
         );
     }
     // clear cart
-    @DeleteMapping("/clear/{userId}")
-    public void clearCart(@PathVariable Long userId) {
+    @DeleteMapping("/clear")
+    public ResponseEntity<CartResponse> clearCart(
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        Long userId = userPrincipal.getUserId();
         cartService.clearCart(userId);
+        CartResponse updated = cartService.getCartResponseByUserId(userPrincipal.getUserId());
+        return ResponseEntity.ok(updated);
     }
 }
