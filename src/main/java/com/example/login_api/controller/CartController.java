@@ -40,8 +40,12 @@ public class CartController {
 
     // add product to cart
     @PostMapping("/add")
-    public CartResponse addProductToCart(@RequestBody AddProductRequest request, @AuthenticationPrincipal UserPrincipal userprincipal) {
-        return cartService.addProductToCart(userprincipal.getUserId(), request.getProductId(), request.getQuantity());
+    public CartResponse addProductToCart(@RequestBody AddProductRequest request,
+                                         @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return cartService.addProductToCart(
+                userPrincipal.getUserId(),
+                request.getProductId(),
+                request.getQuantity());
     }
     // remove product from cart old
    /* @DeleteMapping("/remove/{userId}/{productId}")

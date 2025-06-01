@@ -24,21 +24,22 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class CartService {
+
     private final ICartRepository cartRepository;
     private final IUserRepository userRepository;
     private final ICartItemRepository cartItemRepository;
     private final IProductRepository productRepository;
     private final ModelMapper modelMapper;
 
-    // Obtener el carrito de un usuario por su ID
+    /**
+     * 1) Obtiene (o crea) el Carrito del usuario.
+     *    - No está anotado @Transactional porque solo lee o crea una nueva entidad Cart.
+     */
     public Cart getCartByUserId(Long userId) {
-        // Validar el usuario
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
-        // Buscar el carrito del usuario
         return cartRepository.findByUser(user)
                 .orElseGet(() -> {
-                    // Si no existe, crea un nuevo carrito asociado al usuario
                     Cart newCart = new Cart();
                     newCart.setUser(user);
                     newCart.setItems(new ArrayList<>());
@@ -49,10 +50,13 @@ public class CartService {
                 });
     }
 
+    /**
+     * 2) Devuelve un DTO con el Carrito del usuario (buscando por email).
+     *    - Funcionalmente idéntico a getCartByUserId pero mapea a CartResponse.
+     */
     public CartResponse getCartResponseByEmail(String email) {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
-
         Cart cart = cartRepository.findByUser(user)
                 .orElseGet(() -> {
                     Cart newCart = new Cart();
@@ -63,175 +67,151 @@ public class CartService {
                     newCart.setUpdatedAt(LocalDateTime.now());
                     return cartRepository.save(newCart);
                 });
-
         return convertToCartResponse(cart);
     }
 
 
-    // Agregar un producto al carrito
+    /**
+     * 3) Añade un producto al carrito.
+     *    - Anotado @Transactional, para que toda la operación (insert/update de CartItem y recálculo de total)
+     *      se ejecute en la misma transacción.
+     */
     @Transactional
     public CartResponse addProductToCart(Long userId, Long productId, int quantity) {
-        try {
-            //validar la cantidad
-            if (quantity <= 0) {
-                throw new RuntimeException("La cantidad debe ser mayor que cero para agregar al carrito.");
-            }
-            // Obtener el carrito del usuario usando el método getCartByUserId
-            Cart cart = getCartByUserId(userId);
-            // Verificar si el producto existe
-            Product product = productRepository.findById(productId)
-                    .orElseThrow(() -> new RuntimeException("Producto no encontrado."));
-            // Verificar si el producto ya está en el carrito
-            Optional<CartItem> existingItemOpt = cartItemRepository.findByCartAndProduct(cart, product);
-            // Si el producto ya está en el carrito, actualizar la cantidad
-            CartItem item = existingItemOpt.orElseGet(() -> {
-                CartItem newItem = new CartItem();
-                newItem.setCart(cart);
-                newItem.setProduct(product);
-                newItem.setQuantity(0);
-                return newItem;
-            });
-            // Actualizar la cantidad del producto en el carrito
-            item.setQuantity(item.getQuantity() + quantity);
-            cartItemRepository.save(item);
-            // Asegurarse de que el producto esté en la lista de items del carrito
-            if (!cart.getItems().contains(item)) {
-                cart.getItems().add(item);
-            }
-            // Actualizar el total del carrito
-            updateCartTotal(cart);
-            return convertToCartResponse(cart); // devuelves DTO limpio
-        } catch (Exception e) {
-            throw new RuntimeException("Error al agregar el producto al carrito: " + e.getMessage(), e);
+        if (quantity <= 0) {
+            throw new RuntimeException("La cantidad debe ser mayor que cero para agregar al carrito.");
         }
+
+        Cart cart = getCartByUserId(userId); // puede devolver un carrito nuevo si no existe
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado."));
+
+        Optional<CartItem> existingItemOpt = cartItemRepository.findByCartAndProduct(cart, product);
+        CartItem item = existingItemOpt.orElseGet(() -> {
+            CartItem newItem = new CartItem();
+            newItem.setCart(cart);
+            newItem.setProduct(product);
+            newItem.setQuantity(0);
+            return newItem;
+        });
+
+        item.setQuantity(item.getQuantity() + quantity);
+        cartItemRepository.save(item); // persiste/actualiza CartItem
+
+        if (!cart.getItems().contains(item)) {
+            cart.getItems().add(item);
+        }
+
+        // Recalcular total y guardar ambos: CartItem y Cart
+        Cart cartActualizado = updateCartTotal(cart);
+        return convertToCartResponse(cartActualizado);
     }
 
-
-    // Vaciar el carrito
+    /**
+     * 4) Vacía un carrito completo (elimina todos los CartItem y reinicia totales en 0).
+     *    - Anotado @Transactional.
+     */
     @Transactional
     public void clearCart(Long userId) {
-        // Obtener el carrito del usuario usando el método getCartByUserId
-       try {
         Cart cart = getCartByUserId(userId);
-           // elimina todos los cartitems de la base de datos de ese carrito
+        // Borra todos los CartItem en bloque
         cartItemRepository.deleteAll(cart.getItems());
-        // Limpia la lista de items del carrito de la memoria
-        cart.getItems().clear();
-        //actualiza el total en 0
-        updateCartTotal(cart);
+        // Reinicia la lista y totales en memoria
+        cart.setItems(new ArrayList<>());
+        cart.setTotalPrice(BigDecimal.ZERO);
+        cart.setUpdatedAt(LocalDateTime.now());
+        // Persiste los cambios en Cart
+        cartRepository.save(cart);
     }
-       // Si ocurre un error, lanzar una excepción personalizada
-       catch (Exception e) {
-              throw new RuntimeException("Error al vaciar el carrito: " + e.getMessage(), e);
-         }
-     }
 
-    /* Recalcular el total del carrito . Al utilizaer el método @Transactional,
-     se asegura que todas las operaciones dentro del método se ejecuten en una transacción.
-     o se ejecuta todo o nos e ejecuta nada.
-     para evitar que se guarde información incorrecta en la base de datos.*/
+    /**
+     * 5) Recalcula total y persiste Carrito.
+     *    - Está anotado @Transactional para asegurar que el método se ejecute dentro de la misma transacción
+     *      (si es llamado desde otro método @Transactional, se reutiliza la transacción actual).
+     */
     @Transactional
     public Cart updateCartTotal(Cart cart) {
-        // Verificar si el carrito tiene items
         if (cart.getItems() == null) {
             cart.setItems(new ArrayList<>());
         }
-        // Calcular el total del carrito
         BigDecimal total = cart.getItems().stream()
                 .map(item -> item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        // Actualizar el total del carrito
         cart.setTotalPrice(total);
         cart.setUpdatedAt(LocalDateTime.now());
-        // Guardar el carrito actualizado
         return cartRepository.save(cart);
-      }
+    }
 
-    public CartResponse updateProductQuantity(Long userId, Long productId,int newQuantity){
-      try {
-
-
-        // Obtener el carrito del usuario
+    /**
+     * 6) Actualiza la cantidad de un único producto en el carrito.
+     *    - Ahora anotado @Transactional para que se guarde correctamente el carrito tras la modificación.
+     *    - Si la nueva cantidad es ≤ 0, elimina el CartItem; en otro caso actualiza la cantidad.
+     *    - Luego recalcula total mediante updateCartTotal(cart).
+     */
+    @Transactional
+    public CartResponse updateProductQuantity(Long userId, Long productId, int newQuantity) {
         Cart cart = getCartByUserId(userId);
-        // Verificar si el producto existe
+
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado."));
-        // Verificar si el producto está en el carrito
+
         CartItem item = cartItemRepository.findByCartAndProduct(cart, product)
                 .orElseThrow(() -> new RuntimeException("El producto no está en el carrito."));
-        // Actualizar la cantidad del producto en el carrito
+
         if (newQuantity <= 0) {
-            System.out.println("Eliminando producto del carrito con ID: " + productId);
             cartItemRepository.delete(item);
             cart.getItems().removeIf(i -> i.getProduct().getProductId().equals(productId));
         } else {
             item.setQuantity(newQuantity);
             cartItemRepository.save(item);
         }
-        System.out.println("Actualizando cantidad del producto en el carrito con ID: " + productId);
-        return convertToCartResponse(updateCartTotal(cart));
-    }
-        catch (Exception e) {
-                throw new RuntimeException("Error al actualizar la cantidad del producto en el carrito: " + e.getMessage(), e);
-             }
-        }
 
-// Obtener el carrito de un usuario (por objeto User)
-public CartResponse getCartResponseByUserId(Long userId) {
-    try {
-        // Validar el usuario
+        // Recalcula el total y persiste
+        Cart cartActualizado = updateCartTotal(cart);
+        return convertToCartResponse(cartActualizado);
+    }
+
+    /**
+     * 7) Devuelve un CartResponse para un usuario dado (por userId).
+     *    - Internamente crea un nuevo carrito si no existe.
+     */
+    public CartResponse getCartResponseByUserId(Long userId) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
-        // Buscar el carrito del usuario
         Cart cart = cartRepository.findByUser(user)
                 .orElseGet(() -> {
-                    // Si no existe, crea un nuevo carrito asociado al usuario
                     Cart newCart = new Cart();
-                    // Asignar el usuario al nuevo carrito
                     newCart.setUser(user);
-                    // Inicializa la lista de items y el total del carrito
                     newCart.setItems(new ArrayList<>());
-                    // Inicializa el total del carrito a cero
                     newCart.setTotalPrice(BigDecimal.ZERO);
-                    // Establece las fechas de creación y actualización
                     newCart.setCreatedAt(LocalDateTime.now());
                     newCart.setUpdatedAt(LocalDateTime.now());
-                    // Guarda el nuevo carrito en la base de datos
                     return cartRepository.save(newCart);
                 });
-        // Convertir el carrito a DTO y lo devolve
         return convertToCartResponse(cart);
-
-    } catch (Exception e) {
-        throw new RuntimeException("Error al obtener el carrito del usuario: " + e.getMessage(), e);
     }
-}
 
-    // Obtener el carrito de un usuario (por objeto Cart)
+    /**
+     * 8) Mapea la entidad Cart a un DTO CartResponse, incluyendo sus CartItemResponse.
+     */
     private CartResponse convertToCartResponse(Cart cart) {
-       try {
-           //mapea el carrito a CartResponse
         CartResponse dto = modelMapper.map(cart, CartResponse.class);
 
-        // Si el carrito no tiene items, inicializa la lista para evitar NullPointerException
-        List<CartItemResponse> itemDtos = cart.getItems().stream().map(item -> {
-            // Mapea cada CartItem a CartItemResponse
-            CartItemResponse itemDto = new CartItemResponse();
-            itemDto.setProductId(item.getProduct().getProductId());
-            itemDto.setProductName(item.getProduct().getProductName());
-            itemDto.setDescription(item.getProduct().getDescription());
-            itemDto.setQuantity(item.getQuantity());
-            itemDto.setPrice(item.getProduct().getPrice());
-            itemDto.setImageUrl(item.getProduct().getProductImage());
-            //
-            return itemDto;
-        }).toList();
+        List<CartItemResponse> itemDtos = cart.getItems().stream()
+                .map(item -> {
+                    CartItemResponse itemDto = new CartItemResponse();
+                    itemDto.setProductId(item.getProduct().getProductId());
+                    itemDto.setProductName(item.getProduct().getProductName());
+                    itemDto.setDescription(item.getProduct().getDescription());
+                    itemDto.setQuantity(item.getQuantity());
+                    itemDto.setPrice(item.getProduct().getPrice());
+                    itemDto.setImageUrl(item.getProduct().getProductImage());
+                    return itemDto;
+                })
+                .toList();
 
         dto.setItems(itemDtos);
         return dto;
     }
-         catch (Exception e) {
-                throw new RuntimeException("Error al convertir el carrito a DTO: " + e.getMessage(), e);
-          }
-     }
 }
