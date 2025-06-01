@@ -5,8 +5,10 @@ import com.example.login_api.dto.AddProductRequest;
 import com.example.login_api.dto.CartResponse;
 import com.example.login_api.dto.UpdateQuantityRequest;
 import com.example.login_api.repository.IUserRepository;
+import com.example.login_api.security.UserPrincipal;
 import com.example.login_api.service.CartService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -38,8 +40,8 @@ public class CartController {
 
     // add product to cart
     @PostMapping("/add")
-    public CartResponse addProductToCart(@RequestBody AddProductRequest request){
-        return cartService.addProductToCart(request.getUserId(), request.getProductId(), request.getQuantity());
+    public CartResponse addProductToCart(@RequestBody AddProductRequest request, @AuthenticationPrincipal UserPrincipal userprincipal) {
+        return cartService.addProductToCart(userprincipal.getUserId(), request.getProductId(), request.getQuantity());
     }
     // remove product from cart old
    /* @DeleteMapping("/remove/{userId}/{productId}")

@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Getter
 @Setter
 public class AddProductRequest {
-    private Long userId;
     private Long productId;
     private int quantity;
 }
