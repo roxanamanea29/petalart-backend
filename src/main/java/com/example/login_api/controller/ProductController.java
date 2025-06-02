@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -55,9 +55,20 @@ public class ProductController {
         productService.deleteById(id);
     }
 
+    //metodo utilizado para buscar productos por nombre o descripcion utilizando un query
     @GetMapping("/search")
-    public ResponseEntity<List<ProductResponse>> searchProducts(@RequestParam ("query") String query) {
+    public ResponseEntity<List<ProductResponse>> searchProducts(@RequestParam (name = "query", required = false)  String query) {
+        // Verifica si el query es nulo o vacío o solo contiene espacios
+        if(query == null || query.trim().isEmpty()) {
+            //si es nulo o vacío, retorna una respuesta vde Bad Request
+            return ResponseEntity
+                    .badRequest()
+                    // con un cuerpo vacío
+                    .body(Collections.emptyList());
+        }
+        //si el query no es nulo o vacío, llama al servicio para buscar productos por nombre o descripción
         List<ProductResponse> results = productService.searchByNameOrDescription(query);
+        //devuelver la lista de productos encontrados como respuesta
         return ResponseEntity.ok(results);
     }
 }

@@ -10,6 +10,7 @@ import com.example.login_api.repository.IProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -106,15 +107,19 @@ public class ProductService {
 
     //método para buscar productos por nombre o descripción
     public List<ProductResponse> searchByNameOrDescription(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<Product> productFound = productRepository.searchByNameOrDescription(query, query);
         //busca los productos que contengan el query en el nombre o descripción
-        return productRepository.searchByNameOrDescription(query, query)
-                //transforma la lista de productos en una lista de DTOs ProductResponse
+        return productFound
                 .stream()
                 // utiliza el método mapToProductResponse para transformar cada producto en un DTO
                 .map(this::mapToProductResponse)
                 // colecta los resultados en una lista
                 .collect(Collectors.toList());
     }
+
     //método privado( interno )para mapear un producto al dto ProductResponse  con los atributos
     private ProductResponse mapToProductResponse(Product product) {//recibe un producto y lo transforma en un DTO
         ProductResponse response = new ProductResponse();//crea un nuevo DTO para el producto
