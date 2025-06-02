@@ -80,6 +80,12 @@ public class UserPrincipal implements UserDetails {//UserDetails es una interfaz
         // Set other necessary fields
         return user;
     }
+    // Método para obtener el nombre completo del usuario
+    public String getFullName() {
+        String fn = firstName != null ? firstName : "";
+        String ln = lastName != null ? lastName : "";
+        return fn+ " " + ln;
+    }
 
 
 }

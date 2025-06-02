@@ -51,7 +51,7 @@ public class UserController {
 
           // Crear y poblar el DTO
           ProfileResponse response = new ProfileResponse(
-        principal.getFirstName() + " " + principal.getLastName(),
+        principal.getFullName(),
                     principal.getEmail(),
                     principal.getAuthorities().iterator().next().getAuthority()
             );
