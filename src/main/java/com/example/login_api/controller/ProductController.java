@@ -4,6 +4,7 @@ import com.example.login_api.dto.ProductRequest;
 import com.example.login_api.dto.ProductResponse;
 import com.example.login_api.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,5 +53,11 @@ public class ProductController {
     @DeleteMapping("/{id}")
     public void deleteProduct(@PathVariable Long id) {
         productService.deleteById(id);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductResponse>> searchProducts(@RequestParam ("query") String query) {
+        List<ProductResponse> results = productService.searchByNameOrDescription(query);
+        return ResponseEntity.ok(results);
     }
 }
