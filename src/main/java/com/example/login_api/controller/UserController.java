@@ -4,19 +4,15 @@ package com.example.login_api.controller;
 import com.example.login_api.dto.ProfileResponse;
 import com.example.login_api.dto.UpdateProfileRequest;
 import com.example.login_api.entity.UserEntity;
-import com.example.login_api.repository.IUserRepository;
 import com.example.login_api.security.UserPrincipal;
 import com.example.login_api.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+
 
 
 /*
@@ -46,31 +42,39 @@ public class UserController {
         return ResponseEntity.ok(userService.getUsers());
     }
 
+    // Ver perfil del usuario
      @GetMapping("/profile")
     public ResponseEntity<ProfileResponse> getProfile(@AuthenticationPrincipal UserPrincipal principal) {
+            // Obtiene los datos del usuario autenticado
+            String fn = principal.getFirstName();
+            String ln = principal.getLastName();
+            String email = principal.getEmail();
+            String phone = principal.getPhone();
+            if (fn == null || fn.isEmpty()) fn ="Sin nombre";
+            if (ln == null || ln.isEmpty()) ln = "Sin apellido";
+            if(email == null || email.isEmpty()) email = "Sin correo";
+            if(phone == null || phone.isEmpty()) phone = "Sin teléfono";
 
-          // Crear y poblar el DTO
+            // Crea la respuesta con los datos del usuario
+
           ProfileResponse response = new ProfileResponse(
-        principal.getFullName(),
-                    principal.getEmail(),
-                    principal.getAuthorities().iterator().next().getAuthority()
+                  fn.trim(),
+                  ln.trim(),
+                  email.trim(),
+                  phone.trim()
             );
           return ResponseEntity.ok(response);
-
     }
 
     //actualizar perfil del usuario
-
     @PutMapping("/profile")
     public ResponseEntity<UserEntity> updateProfile(@AuthenticationPrincipal UserPrincipal principal,
                                                     @RequestBody UpdateProfileRequest req) {
-
         UserEntity updated = userService.updateProfile(principal.getEmail(), req);
         return ResponseEntity.ok(updated);
     }
 
     /*Eliminar uenta propia*/
-
     @DeleteMapping("/profile")
     public ResponseEntity<String> deleteProfile(Principal principal) {
         String email = principal.getName();

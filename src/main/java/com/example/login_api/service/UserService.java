@@ -1,5 +1,4 @@
 package com.example.login_api.service;
-
 import com.example.login_api.dto.UpdateProfileRequest;
 import com.example.login_api.entity.UserEntity;
 import com.example.login_api.dto.RegisterRequest;
@@ -35,7 +34,6 @@ public class UserService {
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
             throw new EmailAlreadyExistsException("El email ya está registrado");
         }
-
         // Crear la entidad de usuario
         UserEntity newUser = new UserEntity();
         newUser.setFirstName(registerRequest.getFirstName());
@@ -86,13 +84,14 @@ public class UserService {
     }
 
 
-    public ResponseEntity<String> deleteUser(Long id) {
+    public ResponseEntity<String>  deleteUser(Long id) {
         UserEntity existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         userRepository.delete(existingUser);
         return ResponseEntity.ok("usuario eliminado");
     }
+
     // Lógica de negocio para actualizar el perfil de un usuario para el cliente
     public UserEntity updateProfile(String email, UpdateProfileRequest dto) {
         UserEntity existing = userRepository.findByEmail(email)

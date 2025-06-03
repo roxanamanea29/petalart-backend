@@ -29,6 +29,7 @@ public class UserPrincipal implements UserDetails {//UserDetails es una interfaz
     private final String firstName;
 
     private final String lastName;
+    private final String phone;
 
     //los roles del usuario que se asignan como autoridades
     private  final Collection<? extends GrantedAuthority> authorities;
@@ -77,15 +78,9 @@ public class UserPrincipal implements UserDetails {//UserDetails es una interfaz
         user.setFirstName(this.firstName);
         user.setLastName(this.lastName);
         user.setPassword(this.password);
-        // Set other necessary fields
+        user.setPhone(this.phone);
+        //
         return user;
     }
-    // Método para obtener el nombre completo del usuario
-    public String getFullName() {
-        String fn = firstName != null ? firstName : "";
-        String ln = lastName != null ? lastName : "";
-        return fn+ " " + ln;
-    }
-
 
 }

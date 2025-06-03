@@ -5,7 +5,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Getter;
 import lombok.Setter;
-
+/**
+ * es el DTO para actualizar la información del usuario.
+ * Contiene los campos que se pueden actualizar como nombre, apellido, teléfono, email, rol y contraseña.
+ * **/
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
