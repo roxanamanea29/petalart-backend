@@ -63,6 +63,9 @@ public class UserController {
                   email.trim(),
                   phone.trim()
             );
+         System.out.println("🛠 Perfil del usuario: " + response); // Depuración
+
+            // Devuelve la respuesta con el estado 200 OK
           return ResponseEntity.ok(response);
     }
 
