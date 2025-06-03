@@ -3,10 +3,12 @@ package com.example.login_api.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@ToString
 public class ProfileResponse {
     private String firstName;
     private String lastName;
