@@ -31,6 +31,7 @@ public class CustomUserDetailService implements UserDetailsService {
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
+                .phone(user.getPhone())
                 .authorities(List.of(new SimpleGrantedAuthority(user.getRole())))//Es un objeto de Spring que representa el rol de un usuario
                 .password(user.getPassword())
                 .build();

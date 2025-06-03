@@ -84,12 +84,10 @@ public class UserService {
     }
 
 
-    public ResponseEntity<String>  deleteUser(Long id) {
+    public void deleteUser(Long id) {
         UserEntity existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
         userRepository.delete(existingUser);
-        return ResponseEntity.ok("usuario eliminado");
     }
 
     // Lógica de negocio para actualizar el perfil de un usuario para el cliente
