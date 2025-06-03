@@ -60,6 +60,13 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    // Método para obtener el perfil del usuario autenticado
+    public UserEntity getProfileOfUser(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    }
+
+
     public Optional<UserEntity> getUserById(Long id) {
         return userRepository.findById(id);
     }

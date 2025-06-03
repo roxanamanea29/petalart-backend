@@ -42,29 +42,25 @@ public class UserController {
         return ResponseEntity.ok(userService.getUsers());
     }
 
+
     // Ver perfil del usuario
      @GetMapping("/profile")
     public ResponseEntity<ProfileResponse> getProfile(@AuthenticationPrincipal UserPrincipal principal) {
+        UserEntity user = userService.getProfileOfUser(principal.getEmail());
             // Obtiene los datos del usuario autenticado
-            String fn = principal.getFirstName();
-            String ln = principal.getLastName();
-            String email = principal.getEmail();
-            String phone = principal.getPhone();
-            if (fn == null || fn.isEmpty()) fn ="Sin nombre";
-            if (ln == null || ln.isEmpty()) ln = "Sin apellido";
-            if(email == null || email.isEmpty()) email = "Sin correo";
-            if(phone == null || phone.isEmpty()) phone = "Sin teléfono";
-
+            String firstName = (user.getFirstName() == null || user.getFirstName().isEmpty()) ? "Sin nombre" : user.getFirstName().trim();
+            String lastName = (user.getLastName() == null || user.getLastName().isEmpty()) ? "Sin apellido" : user.getLastName().trim();
+            String email = (user.getEmail() == null || user.getEmail().isEmpty()) ? "Sin correo" : user.getEmail().trim();
+            String phone = (user.getPhone() == null || user.getPhone().isEmpty()) ? "Sin teléfono" : user.getPhone().trim();
             // Crea la respuesta con los datos del usuario
 
           ProfileResponse response = new ProfileResponse(
-                  fn.trim(),
-                  ln.trim(),
-                  email.trim(),
-                  phone.trim()
+                  firstName,
+                  lastName,
+                  email,
+                  phone
             );
-         System.out.println("🛠 Perfil del usuario: " + response); // Depuración
-
+         System.out.println("Perfil del usuario: " + response); // Depuración
             // Devuelve la respuesta con el estado 200 OK
           return ResponseEntity.ok(response);
     }
