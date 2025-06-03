@@ -55,6 +55,7 @@ public class UserController {
             // Crea la respuesta con los datos del usuario
 
           ProfileResponse response = new ProfileResponse(
+                  user.getId(),
                   firstName,
                   lastName,
                   email,
