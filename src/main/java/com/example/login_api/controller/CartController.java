@@ -45,8 +45,13 @@ public class CartController {
                 request.getQuantity()
         );
     }
-
+    // remove product from cart old
+   /* @DeleteMapping("/remove/{userId}/{productId}")
+    public void removeProductFromCart(@PathVariable Long userId, @PathVariable Long productId) {
+        cartService.removeProductFromCart(userId, productId);
+    }*/
     // remove product from cart para recuperar el carrito despues de eliminar un producto
+
     @DeleteMapping("/remove/{productId}")
     public ResponseEntity <CartResponse> removeProductFromCart(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
