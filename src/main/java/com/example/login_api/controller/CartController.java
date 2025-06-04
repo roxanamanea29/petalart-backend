@@ -1,6 +1,5 @@
 package com.example.login_api.controller;
 
-
 import com.example.login_api.dto.AddProductRequest;
 import com.example.login_api.dto.CartResponse;
 import com.example.login_api.dto.UpdateQuantityRequest;
@@ -82,7 +81,7 @@ public class CartController {
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         Long userId = userPrincipal.getUserId();
         cartService.clearCart(userId);
-        CartResponse updated = cartService.getCartResponseByUserId(userPrincipal.getUserId());
+        CartResponse updated = cartService.getCartResponseByUserId(userId);
         return ResponseEntity.ok(updated);
     }
 }

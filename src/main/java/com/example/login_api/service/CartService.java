@@ -134,9 +134,9 @@ public class CartService {
     }
     /**
      * 4) Vacía un carrito completo (elimina todos los CartItem y reinicia totales en 0).
-     *    - Anotado @Transactional.
+     *    - Anotado @Transactional. old
      */
-    @Transactional
+  /*  @Transactional
     public void clearCart(Long userId) {
         Cart cart = getCartByUserId(userId);
         // Borra todos los CartItem en bloque
@@ -146,6 +146,22 @@ public class CartService {
         cart.setTotalPrice(BigDecimal.ZERO);
         cart.setUpdatedAt(LocalDateTime.now());
         // Persiste los cambios en Cart
+        cartRepository.save(cart);
+    }*/
+
+    /**
+     * 4) Vacía un carrito completo (elimina todos los CartItem y reinicia totales en 0).
+     *    - Anotado @Transactional para que se ejecute en la misma transacción.
+     */
+    @Transactional
+    public void clearCart(Long userId) {
+        Cart cart = getCartByUserId(userId);
+
+        // Reinicia la lista y totales en memoria
+        cart.getItems().clear(); // Elimina todos los CartItem
+        cart.setTotalPrice(BigDecimal.ZERO); // Reinicia el total a 0
+        cart.setUpdatedAt(LocalDateTime.now()); // Actualiza la fecha de modificación
+        // guardar los cambios
         cartRepository.save(cart);
     }
 
