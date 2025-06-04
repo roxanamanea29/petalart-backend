@@ -216,6 +216,7 @@ public class CartService {
         return convertToCartResponse(cart);
     }
 
+
     /**
      * 8) Mapea la entidad Cart a un DTO CartResponse, incluyendo sus CartItemResponse.
      */
