@@ -1,12 +1,10 @@
-# 🌸 PetalArt – Aplicación Web para Floristería Online (Frontend + Backend)
+# 🌸 PetalArt – Aplicación Web para Floristería Online
 
-**PetalArt** es una aplicación web de comercio electrónico desarrollada como Trabajo de Fin de Grado en Desarrollo de Aplicaciones Web (DAW). Integra un frontend moderno con React + Vite y un backend robusto con Spring Boot, ofreciendo una experiencia completa para clientes y administradores.
+**PetalArt** es una aplicación web de comercio electrónico desarrollada como Trabajo de Fin de Grado en Desarrollo de Aplicaciones Web (DAW). Este repositorio corresponde al **backend** del sistema, implementado con Spring Boot.
 
 ---
 
 ## 🧰 Tecnologías utilizadas
-
-### 🔙 Backend – Spring Boot
 
 * Java 17
 * Spring Boot (MVC, Security, Data JPA)
@@ -15,72 +13,49 @@
 * Gradle como gestor de dependencias
 * Dockerfile para despliegue opcional
 
-### 🔜 Frontend – React + Vite
-
-* React 18
-* Vite como bundler ultrarrápido
-* React Router DOM para navegación SPA
-* Fetch API para llamadas HTTP
-* Tailwind CSS + CSS personalizado
-* Context API para gestión de estado
-
 ---
 
 ## 🚀 Funcionalidades
 
-* Catálogo de productos por categorías
-* Registro / login de usuarios con JWT
-* Carrito persistente con y sin login
-* Checkout con direcciones y confirmación de pedido
-* Panel de administración para gestión de productos, categorías y pedidos
-* Rutas protegidas por roles (USER / ADMIN)
-* Gestión de direcciones por usuario
+* Registro y login de usuarios con roles (USER / ADMIN)
+* Gestión de productos, categorías, direcciones y pedidos
+* Seguridad basada en JWT
+* API RESTful conectada a frontend externo
 
 ---
 
-## 📂 Estructura del repositorio
+## 📂 Estructura del proyecto
 
 ```
-petalart/
-├── backend/            # Spring Boot API REST
-│   ├── src/main/java/com/example/login_api/
-│   │   ├── controller/      # Controladores REST
-│   │   ├── service/         # Lógica de negocio
-│   │   ├── entity/          # Entidades JPA
-│   │   ├── dto/             # Data Transfer Objects
-│   │   ├── repository/      # Repositorios
-│   │   ├── security/        # Seguridad y filtros JWT
-│   │   ├── config/          # Configuración general
-│   │   └── mapper/          # ModelMapper config
-│   ├── src/main/resources/  # application.properties, data.sql
-│   └── build.gradle
-├── frontend/           # Interfaz React
-│   ├── src/
-│   │   ├── components/      # Componentes reutilizables
-│   │   ├── components_admin/ # Panel admin
-│   │   ├── pages/user/      # Páginas para usuarios
-│   │   ├── pages/admin/     # Páginas para admin
-│   │   ├── hooks/           # Custom hooks
-│   │   ├── Configuration/   # API config
-│   │   ├── routes/          # Definición de rutas
-│   │   └── assets/, css/    # Estilos e imágenes
-│   └── vite.config.js
+petalart-backend/
+├── src/main/java/com/example/login_api/
+│   ├── controller/      # Controladores REST
+│   ├── service/         # Lógica de negocio
+│   ├── entity/          # Entidades JPA
+│   ├── dto/             # Data Transfer Objects
+│   ├── repository/      # Repositorios
+│   ├── security/        # Seguridad y filtros JWT
+│   ├── config/          # Configuración general
+│   └── mapper/          # ModelMapper config
+├── src/main/resources/  # application.properties, data.sql
+├── build.gradle
+└── Dockerfile
 ```
 
 ---
 
 ## 🛠️ Instalación y ejecución
 
-### Clonar el proyecto
+### Clonar el repositorio
 
 ```bash
-git clone https://github.com/roxanamanea29/petalart.git
-cd petalart
+git clone https://github.com/roxanamanea29/petalart-backend.git
+cd petalart-backend
 ```
 
-### 🔙 Backend (Spring Boot)
+### Configuración
 
-1. Configura `application.properties`:
+Edita el archivo `src/main/resources/application.properties` con tus credenciales:
 
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/petalart
@@ -89,28 +64,17 @@ spring.datasource.password=tu_password
 jwt.secret=tu_secreto_jwt
 ```
 
-2. Ejecuta:
+### Ejecutar localmente
 
 ```bash
-cd backend
 ./gradlew bootRun
 ```
 
-API disponible en `http://localhost:8080`
-
-### 🔜 Frontend (React)
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-App disponible en `http://localhost:5173`
+API disponible en: `http://localhost:8080`
 
 ---
 
-## 📰 Endpoints destacados del backend
+## 📡 Endpoints destacados
 
 | Método | URL               | Descripción                   | Acceso  |
 | ------ | ----------------- | ----------------------------- | ------- |
